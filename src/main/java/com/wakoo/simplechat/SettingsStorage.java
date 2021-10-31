@@ -35,25 +35,24 @@ public final class SettingsStorage {
             } catch (IOException ioexcp) {
                 load_display.DisplayMessage("Не удалось прочитать файл с парой ключей");
             }
+            try (FileReader port_fr = new FileReader(settings_root.resolve("port.txt").toFile())) {
+                try (BufferedReader port_r = new BufferedReader(port_fr)) {
+                    listen_port = Integer.parseInt(port_r.readLine());
+                } catch (NumberFormatException nfexcp) {
+                    load_display.DisplayMessage("Номер порта в файле не является числом");
+                }
+            } catch (FileNotFoundException fnfexcp) {
+                load_display.DisplayMessage("Не удалось найти файл с номером порта");
+            } catch (IOException ioexcp) {
+                load_display.DisplayMessage("Не удалось прочитать файл с номером порта");
+            }
         } else {
             try {
                 Files.createDirectory(settings_root);
             } catch (IOException ioexcp) {
                 save_display.DisplayMessage("Невозможно создать каталог для хранения настроек");
             }
-            try {
-                KeyPairGenerator pairgen = KeyPairGenerator.getInstance("RSA");
-                my_keypair = pairgen.genKeyPair();
-                try (FileOutputStream keypair_fw = new FileOutputStream(settings_root.resolve("keypair").toFile(), false)) {
-                    try (ObjectOutputStream keypair_wr = new ObjectOutputStream(keypair_fw)) {
-                        keypair_wr.writeObject(my_keypair);
-                    }
-                } catch (IOException ioexcp) {
-                    save_display.DisplayMessage("Невозможно записать пару ключей в файл");
-                }
-            } catch (NoSuchAlgorithmException noalgoexcp) {
-                save_display.DisplayMessage("У вас не поддерживается алгоритм RSA");
-            }
+            NewKeyPair();
         }
     }
     public void SaveSettings() {
@@ -62,12 +61,33 @@ public final class SettingsStorage {
         } catch (IOException ioexcp) {
             save_display.DisplayMessage("Невозможно записать имя пользователя в файл");
         }
+        try (FileWriter port_wr = new FileWriter(settings_root.resolve("port.txt").toFile(), false)) {
+            port_wr.write(String.valueOf(listen_port));
+        } catch (IOException ioexcp) {
+            save_display.DisplayMessage("Невозможно записать номер порта в файл");
+        }
+    }
+
+    public void NewKeyPair() {
+        try {
+            KeyPairGenerator pairgen = KeyPairGenerator.getInstance("RSA");
+            my_keypair = pairgen.genKeyPair();
+            try (FileOutputStream keypair_fw = new FileOutputStream(settings_root.resolve("keypair").toFile(), false)) {
+                try (ObjectOutputStream keypair_wr = new ObjectOutputStream(keypair_fw)) {
+                    keypair_wr.writeObject(my_keypair);
+                }
+            } catch (IOException ioexcp) {
+                save_display.DisplayMessage("Невозможно записать пару ключей в файл");
+            }
+        } catch (NoSuchAlgorithmException noalgoexcp) {
+            save_display.DisplayMessage("У вас не поддерживается алгоритм RSA");
+        }
     }
 
     private final Path settings_root;
 
     private String nickname;
-    private short listen_port;
+    private int listen_port;
     private KeyPair my_keypair;
 
     private MsgDisplay save_display = new ErrorDisplay("Ошибка при работе с файлом конфигурации", "Невозможно сохранить сведения в файл конфигурации");
@@ -75,4 +95,7 @@ public final class SettingsStorage {
 
     public String getNickname() { return nickname;}
     public void   setNickname(String nickname) { this.nickname = nickname;}
+
+    public int getListenPort() {return listen_port;}
+    public void setListenPort(int port) {listen_port = port;}
 }
