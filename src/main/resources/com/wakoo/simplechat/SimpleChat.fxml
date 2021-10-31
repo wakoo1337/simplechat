@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wakoo.simplechat.SimpleChat">
   <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="240.0" minWidth="60.0" />
       <ColumnConstraints hgrow="SOMETIMES" />
@@ -30,10 +30,10 @@
         <menus>
           <Menu mnemonicParsing="false" text="Чат">
             <items>
-              <MenuItem mnemonicParsing="false" text="Подключиться" />
-                <MenuItem mnemonicParsing="false" text="Настройки" />
+              <MenuItem mnemonicParsing="false" text="Подключиться" onAction="#MenuActionConnect" />
+                <MenuItem mnemonicParsing="false" text="Настройки" onAction="#MenuActionSettings"/>
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Выход" />
+                  <MenuItem mnemonicParsing="false" text="Выход" onAction="#MenuActionExit" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">
@@ -43,7 +43,7 @@
           </Menu>
           <Menu mnemonicParsing="false" text="Справка">
             <items>
-              <MenuItem mnemonicParsing="false" text="О программе" />
+              <MenuItem mnemonicParsing="false" text="О программе" onAction="#MenuActionAbout" />
             </items>
           </Menu>
         </menus>

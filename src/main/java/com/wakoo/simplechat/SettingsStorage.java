@@ -22,24 +22,24 @@ public final class SettingsStorage {
                     nickname = nickname_r.readLine();
                 }
             } catch (IOException ioexcp) {
-                ShowFileError("Невозможно прочитать имя пользователя из файла");
+                load_display.DisplayMessage("Невозможно прочитать имя пользователя из файла");
             }
             try (FileInputStream keypair_fi = new FileInputStream(settings_root.resolve("keypair").toFile())) {
                 try (ObjectInputStream keypair_in = new ObjectInputStream(keypair_fi)) {
                     my_keypair = (KeyPair) keypair_in.readObject();
                 } catch (ClassNotFoundException classnfexcp) {
-                    ShowFileError("У вас нет класса для пары ключей");
+                    load_display.DisplayMessage("У вас нет класса для пары ключей");
                 }
             } catch (FileNotFoundException fnfexcp) {
-                ShowFileError("Не удалось найти файл с парой ключей");
+                load_display.DisplayMessage("Не удалось найти файл с парой ключей");
             } catch (IOException ioexcp) {
-                ShowFileError("Не удалось прочитать файл с парой ключей");
+                load_display.DisplayMessage("Не удалось прочитать файл с парой ключей");
             }
         } else {
             try {
                 Files.createDirectory(settings_root);
             } catch (IOException ioexcp) {
-                ShowFileError("Невозможно создать каталог для хранения настроек");
+                save_display.DisplayMessage("Невозможно создать каталог для хранения настроек");
             }
             try {
                 KeyPairGenerator pairgen = KeyPairGenerator.getInstance("RSA");
@@ -49,10 +49,10 @@ public final class SettingsStorage {
                         keypair_wr.writeObject(my_keypair);
                     }
                 } catch (IOException ioexcp) {
-                    ShowFileError("Невозможно записать пару ключей в файл");
+                    save_display.DisplayMessage("Невозможно записать пару ключей в файл");
                 }
             } catch (NoSuchAlgorithmException noalgoexcp) {
-                ShowFileError("У вас не поддерживается алгоритм RSA");
+                save_display.DisplayMessage("У вас не поддерживается алгоритм RSA");
             }
         }
     }
@@ -60,15 +60,8 @@ public final class SettingsStorage {
         try (FileWriter nickname_wr = new FileWriter(settings_root.resolve("nickname.txt").toFile(), false)) {
             nickname_wr.write(nickname);
         } catch (IOException ioexcp) {
-            ShowFileError("Невозможно записать имя пользователя в файл");
+            save_display.DisplayMessage("Невозможно записать имя пользователя в файл");
         }
-    }
-
-    private void ShowFileError(String msg) {
-        Alert msgbox = new Alert(Alert.AlertType.ERROR);
-        msgbox.setTitle("Ошибка при чтении или записи настроек");
-        msgbox.setContentText(msg);
-        msgbox.showAndWait();
     }
 
     private final Path settings_root;
@@ -76,4 +69,10 @@ public final class SettingsStorage {
     private String nickname;
     private short listen_port;
     private KeyPair my_keypair;
+
+    private MsgDisplay save_display = new ErrorDisplay("Ошибка при работе с файлом конфигурации", "Невозможно сохранить сведения в файл конфигурации");
+    private MsgDisplay load_display = new ErrorDisplay("Ошибка при работе с файлом конфигурации", "Невозможно прочитать сведения из файла конфигурации");
+
+    public String getNickname() { return nickname;}
+    public void   setNickname(String nickname) { this.nickname = nickname;}
 }
