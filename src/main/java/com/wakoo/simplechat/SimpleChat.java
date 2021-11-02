@@ -34,7 +34,7 @@ public final class SimpleChat extends Application {
         launch();
     }
 
-
-
-
+    public void init() {
+        /* TODO тут начать слушать входящие соединения */
+    }
 }

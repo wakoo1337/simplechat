@@ -39,7 +39,7 @@ public final class SettingsWindow implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        portBox.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 65535, 1));
+        portBox.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 65535, 1)); /* Это должно было быть в FXML, но там не работает */
         reset();
     }
 }
