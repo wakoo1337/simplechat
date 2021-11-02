@@ -22,18 +22,18 @@ public final class SettingsWindow implements Initializable {
 
     @FXML private void okClick(ActionEvent event) {
         event.consume();
-        SettingsStorage.SINGLETON.setNickname(nicknameBox.getText());
-        SettingsStorage.SINGLETON.setListenPort(portBox.getValue());
+        ProfileCatalog.SINGLETON.setNickname(nicknameBox.getText());
+        ProfileCatalog.SINGLETON.setListenPort(portBox.getValue());
     }
 
     @FXML private void newKeyPairClick(ActionEvent event) {
         event.consume();
-        SettingsStorage.SINGLETON.NewKeyPair();
+        ProfileCatalog.SINGLETON.NewKeyPair();
     }
 
     private void reset() {
-        nicknameBox.setText(SettingsStorage.SINGLETON.getNickname());
-        portBox.getValueFactory().setValue(SettingsStorage.SINGLETON.getListenPort());
+        nicknameBox.setText(ProfileCatalog.SINGLETON.getNickname());
+        portBox.getValueFactory().setValue(ProfileCatalog.SINGLETON.getListenPort());
     }
 
 

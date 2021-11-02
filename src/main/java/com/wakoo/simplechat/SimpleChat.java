@@ -27,7 +27,7 @@ public final class SimpleChat extends Application {
     }
 
     public void stop() {
-        SettingsStorage.SINGLETON.SaveSettings();
+        ProfileCatalog.SINGLETON.SaveSettings();
     }
 
     public static void main(String[] args) {

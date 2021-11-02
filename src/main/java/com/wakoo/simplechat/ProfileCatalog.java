@@ -6,11 +6,10 @@ import java.security.KeyPairGenerator;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 
-public final class SettingsStorage {
-    public static final SettingsStorage SINGLETON = new SettingsStorage();
-    private SettingsStorage()  {
+public final class ProfileCatalog {
+    public static final ProfileCatalog SINGLETON = new ProfileCatalog();
+    private ProfileCatalog()  {
         final MsgDisplay load_display = new ErrorDisplay("Ошибка при работе с файлом конфигурации", "Невозможно прочитать сведения из файла конфигурации");
-        SettingsData.SINGLETON = new SettingsData();
         settings_root = Path.of(System.getProperty("user.home") + File.separator + "simplechat");
         if (Files.isDirectory(settings_root)) {
             try (FileInputStream settings_fi = new FileInputStream(settings_root.resolve("settings").toFile())) {
@@ -66,7 +65,7 @@ public final class SettingsStorage {
     public void setListenPort(int port) {SettingsData.SINGLETON.listen_port = port;}
 
     private static final class SettingsData implements Serializable {
-        public static transient SettingsData SINGLETON;
+        public static transient SettingsData SINGLETON = new SettingsData();
 
         public String nickname;
         public int listen_port;

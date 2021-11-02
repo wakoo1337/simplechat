@@ -14,6 +14,20 @@ import java.net.URL;
 public final class MainWindow {
     @FXML private void MenuActionConnect(ActionEvent event) {
         event.consume();
+        Stage connect_stage = new Stage();
+        FXMLLoader loader = new FXMLLoader();
+        URL fxml_url = this.getClass().getResource("ConnectWindow.fxml");
+        loader.setLocation(fxml_url);
+        try {
+            GridPane rootLayout = loader.load();
+            connect_stage.setScene(new Scene(rootLayout));
+        } catch (IOException ioexcp) {
+            MsgDisplay err_display = new ErrorDisplay("Ошибка при загрузке окна настроек");
+            err_display.DisplayMessage("Ошибка ввода-вывода FXML-файла");
+        }
+        connect_stage.initOwner(SimpleChat.main_stage);
+        connect_stage.initModality(Modality.APPLICATION_MODAL);
+        connect_stage.show();
     }
 
     @FXML private void MenuActionExit(ActionEvent event) {
