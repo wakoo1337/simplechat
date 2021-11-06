@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -16,6 +17,8 @@ import java.util.Set;
 public final class NetworkingProcessor implements Runnable {
     public static final NetworkingProcessor SINGLETON = new NetworkingProcessor();
     private static Selector conn_sel;
+
+    private static final Object sel_sync = new Object();
 
     private NetworkingProcessor() {
         try {
@@ -35,32 +38,45 @@ public final class NetworkingProcessor implements Runnable {
             SelectionKey conn_key = conn_listener.register(conn_sel, SelectionKey.OP_ACCEPT);
             while (true) {
                 conn_sel.select();
-                synchronized (conn_sel) {
+                synchronized (sel_sync) {
                     Set<SelectionKey> selected = conn_sel.selectedKeys();
                     for (SelectionKey key : selected) {
                         if (key.equals(conn_key)) {
                             SocketChannel sock = conn_listener.accept();
                             if (sock != null) {
                                 sock.configureBlocking(false);
-                                SelectionKey new_key = sock.register(conn_sel, SelectionKey.OP_READ);
-                                new_key.attach(new ClientConnection(new_key));
-                                ArrayList<ByteBuffer> arrl = new ArrayList<ByteBuffer>();
+                                SelectionKey new_key;
+                                synchronized (sel_sync) {
+                                    new_key = sock.register(conn_sel, SelectionKey.OP_READ);
+                                    new_key.attach(new ClientConnection(new_key));
+                                }
+                                ArrayList<ByteBuffer> arrl = new ArrayList<>();
                                 ByteBuffer bb = StandardCharsets.US_ASCII.encode("Usami Renko is so cute, I`d fuck her.");
+                                ByteBuffer hdrs = ByteBuffer.allocate(8);
+                                hdrs.order(ByteOrder.LITTLE_ENDIAN);
+                                hdrs.putInt(0x20150829);
+                                hdrs.putInt(bb.capacity());
+                                hdrs.flip();
+                                arrl.add(hdrs);
                                 arrl.add(bb);
                                 ((ClientConnection) new_key.attachment()).QueueDataWrite(arrl);
                             }
                         } else {
                             try {
                                 ClientConnection connection = (ClientConnection) key.attachment();
-                                if (key.isReadable()) {
-                                    connection.ProcessInData();
-                                }
-                                if (key.isWritable()) {
-                                    connection.WriteOutData();
-                                }
-                                if (key.isConnectable()) {
+                                SocketChannel channel = (SocketChannel) key.channel();
+                                if (channel.isConnected()) {
+                                    if (key.isReadable()) {
+                                        connection.ProcessInData();
+                                    }
+                                    if (key.isWritable()) {
+                                        connection.WriteOutData();
+                                    }
+                                } else {
                                     key.cancel();
                                     key.channel().close();
+                                    if (channel.equals(ServerConnection.SINGLETON.srv_conn))
+                                        ServerConnection.SINGLETON.connected = false;
                                 }
                             } catch (IOException ioexcp) {
                                 key.cancel();
@@ -85,7 +101,7 @@ public final class NetworkingProcessor implements Runnable {
     public static final class ServerConnection {
         public static final ServerConnection SINGLETON = new ServerConnection();
         private boolean connected = false;
-        private SocketChannel srv_conn;
+        public SocketChannel srv_conn;
         private SelectionKey srv_key;
 
         public void ConnectServer(final InetAddress address, final int port) {
@@ -94,7 +110,7 @@ public final class NetworkingProcessor implements Runnable {
                     srv_conn = SocketChannel.open();
                     srv_conn.connect(new InetSocketAddress(address, port));
                     srv_conn.configureBlocking(false);
-                    synchronized (conn_sel) {
+                    synchronized (sel_sync) {
                         srv_key = srv_conn.register(conn_sel, SelectionKey.OP_READ);
                         srv_key.attach(new ClientConnection(srv_key));
                         conn_sel.wakeup();
@@ -109,7 +125,7 @@ public final class NetworkingProcessor implements Runnable {
         public void DisconnectServer() {
             if (connected) {
                 try {
-                    synchronized (conn_sel) {
+                    synchronized (sel_sync) {
                         srv_key.cancel();
                         srv_conn.close();
                         conn_sel.wakeup();

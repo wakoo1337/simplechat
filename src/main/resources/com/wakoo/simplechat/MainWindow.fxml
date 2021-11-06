@@ -31,7 +31,7 @@
           <Menu mnemonicParsing="false" text="Чат">
             <items>
               <MenuItem mnemonicParsing="false" onAction="#MenuActionConnect" text="Подключиться" />
-                  <MenuItem disable="true" mnemonicParsing="false" onAction="#MenuActionDisconnect" text="Отключиться" />
+                  <MenuItem mnemonicParsing="false" onAction="#MenuActionDisconnect" text="Отключиться" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                 <MenuItem mnemonicParsing="false" onAction="#MenuActionSettings" text="Настройки" />
                   <SeparatorMenuItem mnemonicParsing="false" />
