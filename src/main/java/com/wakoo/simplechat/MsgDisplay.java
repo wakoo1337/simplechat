@@ -1,14 +1,23 @@
 package com.wakoo.simplechat;
 
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 
-public abstract class MsgDisplay {
-    public abstract void DisplayMessage(String msg);
+public class MsgDisplay {
     protected Alert  alert;
 
     MsgDisplay(String title, String header) {
-        this.alert = new Alert(Alert.AlertType.NONE);
-        this.alert.setTitle(title);
-        this.alert.setHeaderText(header);
+        Platform.runLater(() -> {
+            alert = new Alert(Alert.AlertType.NONE);
+            alert.setTitle(title);
+            alert.setHeaderText(header);
+        });
+    }
+
+    public void DisplayMessage(String msg) {
+        Platform.runLater(() -> {
+            this.alert.setContentText(msg);
+            this.alert.showAndWait();
+        });
     }
 }

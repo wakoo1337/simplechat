@@ -30,10 +30,12 @@
         <menus>
           <Menu mnemonicParsing="false" text="Чат">
             <items>
-              <MenuItem mnemonicParsing="false" text="Подключиться" onAction="#MenuActionConnect" />
-                <MenuItem mnemonicParsing="false" text="Настройки" onAction="#MenuActionSettings"/>
+              <MenuItem mnemonicParsing="false" onAction="#MenuActionConnect" text="Подключиться" />
+                  <MenuItem disable="true" mnemonicParsing="false" onAction="#MenuActionDisconnect" text="Отключиться" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Выход" onAction="#MenuActionExit" />
+                <MenuItem mnemonicParsing="false" onAction="#MenuActionSettings" text="Настройки" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" onAction="#MenuActionExit" text="Выход" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">
@@ -43,7 +45,7 @@
           </Menu>
           <Menu mnemonicParsing="false" text="Справка">
             <items>
-              <MenuItem mnemonicParsing="false" text="О программе" onAction="#MenuActionAbout" />
+              <MenuItem mnemonicParsing="false" onAction="#MenuActionAbout" text="О программе" />
             </items>
           </Menu>
         </menus>
@@ -59,7 +61,7 @@
       <VBox GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
          <children>
             <Label text="История сообщений" />
-            <TextArea editable="false" text="Тут будет история сообщений" VBox.vgrow="ALWAYS" />
+            <TextArea fx:id="ChatTextArea" editable="false" text="Тут будет история сообщений" VBox.vgrow="ALWAYS" />
          </children>
       </VBox>
    </children>

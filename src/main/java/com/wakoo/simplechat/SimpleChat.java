@@ -10,13 +10,12 @@ import java.io.IOException;
 public final class SimpleChat extends Application {
     public static Stage main_stage;
     @Override public void start(Stage stage) {
+        final NetworkingProcessor futile = NetworkingProcessor.SINGLETON; // FIXME запускаем синглтонный тред дико омским способом
         main_stage = stage;
-
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(this.getClass().getResource("MainWindow.fxml"));
         try {
             GridPane rootLayout = loader.load();
-
             Scene scene = new Scene(rootLayout);
             stage.setScene(scene);
             stage.show();
@@ -32,9 +31,5 @@ public final class SimpleChat extends Application {
 
     public static void main(String[] args) {
         launch();
-    }
-
-    public void init() {
-        /* TODO тут начать слушать входящие соединения */
     }
 }

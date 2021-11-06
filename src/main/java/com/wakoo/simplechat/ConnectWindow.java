@@ -9,7 +9,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
 public final class ConnectWindow implements Initializable {
@@ -24,6 +27,11 @@ public final class ConnectWindow implements Initializable {
     }
 
     public void onConnect(ActionEvent event) {
+        try {
+            NetworkingProcessor.ServerConnection.SINGLETON.ConnectServer(InetAddress.getByName(netAddress.getText()), portSpinner.getValueFactory().getValue());
+        } catch (UnknownHostException uhostexcp) {
+            (new ErrorDisplay("Ошибка при соединении")).DisplayMessage("Нет такого хоста");
+        }
     }
 
     public void onCancel(ActionEvent event) {
