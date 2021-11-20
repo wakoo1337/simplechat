@@ -8,12 +8,11 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 
-public final class ClientConnection {
+public final class ClientConnection implements AutoCloseable {
     private ByteBuffer in_hdr;
     private ByteBuffer in_msg;
     private final SocketChannel channel;
     private final SelectionKey key;
-    private static final int magic = 0x20150829;
     private final ArrayList<ByteBuffer> sendqueue = new ArrayList<>();
     public ClientConnection(SelectionKey sk) {
         channel = (SocketChannel) sk.channel();
@@ -27,7 +26,7 @@ public final class ClientConnection {
                 in_hdr.flip();
                 final int msg_magic = in_hdr.getInt();
                 final int msg_length = in_hdr.getInt();
-                if ((msg_magic != magic) || (msg_length <= 0)) throw new ProtocolException();
+                if ((msg_magic != MessageDispatcher.MessageTypes.magic) || (msg_length <= 0)) throw new ProtocolException();
                 CreateInMsg(msg_length);
             }
         } else {
@@ -35,6 +34,7 @@ public final class ClientConnection {
             if (!in_msg.hasRemaining()) {
                 in_msg.flip();
                 new MessageDispatcher(in_msg, (InetSocketAddress) channel.getRemoteAddress());
+                in_msg = null;
             }
             in_hdr.clear();
         }
@@ -53,7 +53,19 @@ public final class ClientConnection {
         if (sendqueue.size() == 0) key.interestOpsAnd(SelectionKey.OP_READ);
     }
     public void QueueDataWrite(final ArrayList<ByteBuffer> data) {
-        sendqueue.addAll(data);
+        synchronized (key) {
+            sendqueue.addAll(data);
+        }
         key.interestOpsOr(SelectionKey.OP_WRITE);
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (key.isValid()) key.cancel();
+        channel.close();
+    }
+
+    public void QueueMsgSend(Exportable exportable) {
+        QueueDataWrite(exportable.export());
     }
 }

@@ -2,9 +2,9 @@ package com.wakoo.simplechat;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.KeyPairGenerator;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public final class ProfileCatalog {
     public static final ProfileCatalog SINGLETON = new ProfileCatalog();
@@ -47,6 +47,7 @@ public final class ProfileCatalog {
     public void NewKeyPair() {
         try {
             KeyPairGenerator pairgen = KeyPairGenerator.getInstance("RSA");
+            pairgen.initialize(2048);
             SettingsData.SINGLETON.my_keypair = pairgen.genKeyPair();
             SaveSettings();
         } catch (NoSuchAlgorithmException noalgoexcp) {
@@ -54,15 +55,18 @@ public final class ProfileCatalog {
         }
     }
 
-    private final Path settings_root;
+    private static Path settings_root;
 
-    private final MsgDisplay save_display = new ErrorDisplay("Ошибка при работе с файлом конфигурации", "Невозможно сохранить сведения в файл конфигурации");
+    private static final MsgDisplay save_display = new ErrorDisplay("Ошибка при работе с файлом конфигурации", "Невозможно сохранить сведения в файл конфигурации");
 
     public String getNickname() { return SettingsData.SINGLETON.nickname;}
     public void   setNickname(String nickname) { SettingsData.SINGLETON.nickname = nickname;}
 
     public int getListenPort() {return SettingsData.SINGLETON.listen_port;}
     public void setListenPort(int port) {SettingsData.SINGLETON.listen_port = port;}
+
+    public PrivateKey getClosedKey() {return SettingsData.SINGLETON.my_keypair.getPrivate();}
+    public PublicKey getOpenKey() {return SettingsData.SINGLETON.my_keypair.getPublic();}
 
     private static final class SettingsData implements Serializable {
         public static transient SettingsData SINGLETON = new SettingsData();
@@ -71,9 +75,80 @@ public final class ProfileCatalog {
         public int listen_port;
         public KeyPair my_keypair;
 
-        public SettingsData() {
+        private SettingsData() {
             nickname = "user";
             listen_port = 27600;
         }
     }
+
+    public static final class OpenKeyStorage {
+        public static final OpenKeyStorage SINGLETON = new OpenKeyStorage();
+
+        HashMap<String, PublicKey> map;
+
+        private OpenKeyStorage() {
+            try (FileInputStream map_fi = new FileInputStream(settings_root.resolve("settings").toFile())) {
+                try (ObjectInputStream map_is = new ObjectInputStream(map_fi)) {
+                   map = (HashMap<String, PublicKey>) map_is.readObject();
+                } catch (IOException ioexcp) {
+                    save_display.DisplayMessage("Невозможно записать объект настроек в файл");
+                } catch (ClassNotFoundException e) {
+                    save_display.DisplayMessage("Не найден класс");
+                }
+            } catch (FileNotFoundException e) {
+                map = new HashMap<>();
+            } catch (IOException e) {
+                save_display.DisplayMessage("Ошибка ввода-вывода");
+            }
+        }
+
+        public boolean CheckNicknameKeyMapping(final String nickname, final PublicKey okey) {
+            if (map.containsKey(nickname)) {
+                return map.get(nickname).equals(okey);
+            } else {
+                map.put(nickname, okey);
+                SaveStorage();
+                return true;
+            }
+        }
+
+        private void SaveStorage() {
+            try (FileOutputStream map_fo = new FileOutputStream(settings_root.resolve("settings").toFile(), false)) {
+                try (ObjectOutputStream map_os = new ObjectOutputStream(map_fo)) {
+                    map_os.writeObject(map);
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    /*public byte[] SignMessage(final byte[] input) {
+        try {
+            Signature signer = Signature.getInstance("SHA256withRSA");
+            try {
+                signer.initSign(SettingsData.SINGLETON.my_keypair.getPrivate());
+                try {
+                    byte[] padded = new byte[256 + input.length];
+                    for (int i=0;i < input.length;i++) padded[256+i] = input[i];
+                    signer.update(padded);
+                    byte[] signature;
+                    signature = signer.sign();
+                    assert(signature.length == 256);
+                    for (int i=0;i < 256;i++) padded[i] = signature[i];
+                    return padded;
+                } catch (SignatureException sigexcp) {
+                    save_display.DisplayMessage("Невозможно вычислить цифровую подпись");
+                }
+            } catch (InvalidKeyException invkeyexcp) {
+                save_display.DisplayMessage("Неверный объект ключа");
+            }
+        } catch (NoSuchAlgorithmException noalgoexcp) {
+            save_display.DisplayMessage("У вас не поддерживается алгоритм SHA256 с RSA");
+        }
+        return null;
+    }*/
 }

@@ -4,9 +4,11 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -14,8 +16,10 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
+import java.util.ResourceBundle;
 
-public final class MainWindow {
+public final class MainWindow implements Initializable {
+
     @FXML private void MenuActionConnect(ActionEvent event) {
         event.consume();
         Stage connect_stage = new Stage();
@@ -71,18 +75,15 @@ public final class MainWindow {
 
     @FXML private TextArea ChatTextArea;
 
-    public final class ChatBox {
-        StringBuilder builder = new StringBuilder();
-        public void AddMessage(final String msg, final Date at, final MessageProcessor type) {
-            Platform.runLater(() -> {
-                builder.append(type.marker);
-                builder.append(" ");
-                builder.append(at.toString());
-                builder.append(" ");
-                builder.append(msg);
-                builder.append("\n");
-                ChatTextArea.setText(builder.toString());
-            });
-        }
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        ChatBox.SINGLETON.SetArea(ChatTextArea);
     }
+
+    @FXML private void ButtonSend(ActionEvent event) {
+        msgField.getText();
+    }
+
+    @FXML private TextField msgField;
+
 }

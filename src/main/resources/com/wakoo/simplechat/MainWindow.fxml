@@ -50,8 +50,8 @@
           </Menu>
         </menus>
       </MenuBar>
-      <Button alignment="CENTER" mnemonicParsing="false" text="Отправить" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
-      <TextField text="Сообщения писать сюда" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+      <Button alignment="CENTER" mnemonicParsing="false" onAction="#ButtonSend" text="Отправить" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+      <TextField fx:id="msgField" promptText="Сообщения писать сюда" GridPane.columnSpan="2" GridPane.rowIndex="2" />
       <VBox GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
          <children>
             <Label text="Список пользователей" />

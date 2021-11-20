@@ -3,15 +3,10 @@ package com.wakoo.simplechat;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Set;
 
 public final class NetworkingProcessor implements Runnable {
@@ -50,16 +45,8 @@ public final class NetworkingProcessor implements Runnable {
                                     new_key = sock.register(conn_sel, SelectionKey.OP_READ);
                                     new_key.attach(new ClientConnection(new_key));
                                 }
-                                ArrayList<ByteBuffer> arrl = new ArrayList<>();
-                                ByteBuffer bb = StandardCharsets.US_ASCII.encode("Usami Renko is so cute, I`d fuck her.");
-                                ByteBuffer hdrs = ByteBuffer.allocate(8);
-                                hdrs.order(ByteOrder.LITTLE_ENDIAN);
-                                hdrs.putInt(0x20150829);
-                                hdrs.putInt(bb.capacity());
-                                hdrs.flip();
-                                arrl.add(hdrs);
-                                arrl.add(bb);
-                                ((ClientConnection) new_key.attachment()).QueueDataWrite(arrl);
+                                MessageGenerator msggen = new EnterGenerator();
+                                ((ClientConnection) new_key.attachment()).QueueMsgSend(msggen);
                             }
                         } else {
                             try {
@@ -75,7 +62,7 @@ public final class NetworkingProcessor implements Runnable {
                                 } else {
                                     key.cancel();
                                     key.channel().close();
-                                    if (channel.equals(ServerConnection.SINGLETON.srv_conn))
+                                    if (channel == ServerConnection.SINGLETON.srv_conn)
                                         ServerConnection.SINGLETON.connected = false;
                                 }
                             } catch (IOException ioexcp) {
@@ -103,6 +90,7 @@ public final class NetworkingProcessor implements Runnable {
         private boolean connected = false;
         public SocketChannel srv_conn;
         private SelectionKey srv_key;
+        public ClientConnection cl_conn;
 
         public void ConnectServer(final InetAddress address, final int port) {
             if (!connected) {
@@ -112,7 +100,8 @@ public final class NetworkingProcessor implements Runnable {
                     srv_conn.configureBlocking(false);
                     synchronized (sel_sync) {
                         srv_key = srv_conn.register(conn_sel, SelectionKey.OP_READ);
-                        srv_key.attach(new ClientConnection(srv_key));
+                        cl_conn = new ClientConnection(srv_key);
+                        srv_key.attach(cl_conn);
                         conn_sel.wakeup();
                     }
                     connected = true;
