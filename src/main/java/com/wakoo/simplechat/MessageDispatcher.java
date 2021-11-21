@@ -1,18 +1,19 @@
 package com.wakoo.simplechat;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 public final class MessageDispatcher {
-    private static final HashMap<Integer, Class<?>> types;
+    private static final HashMap<Integer, Class<MessageProcessor>> types;
     static {
         types = new HashMap<>();
         try {
-            types.put(MessageTypes.MessageNoop, Class.forName("com.wakoo.simplechat.NoopProcessor"));
-            types.put(MessageTypes.MessageEnter, Class.forName("com.wakoo.simplechat.EnterProcessor"));
-            types.put(MessageTypes.MessageLeave, Class.forName("com.wakoo.simplechat.LeaveProcessor"));
+            types.put(MessageTypes.MessageNoop,  (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.NoopProcessor"));
+            types.put(MessageTypes.MessageEnter, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.EnterProcessor"));
+            types.put(MessageTypes.MessageLeave, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.LeaveProcessor"));
             types.put(MessageTypes.MessageText, null);
             types.put(MessageTypes.MessageNicknameChange, null);
         } catch (ClassNotFoundException noclassexcp) {
@@ -22,13 +23,15 @@ public final class MessageDispatcher {
     public MessageDispatcher(final ByteBuffer msg, final InetSocketAddress addr) {
         byte[] sign = new byte[256];
         msg.get(sign);
+        ByteBuffer check_it = msg.asReadOnlyBuffer();
         byte[] okey = new byte[294];
         msg.get(okey);
         final int type = msg.getInt();
-        Class<?> msgproc = types.get(type);
+        Class<MessageProcessor> msgproc = types.get(type);
         if (msgproc != null) {
             try {
-                msgproc.getConstructor(InetSocketAddress.class, byte[].class, byte[].class, ByteBuffer.class).newInstance(addr, sign, okey, msg);
+                Constructor<MessageProcessor> c = msgproc.getConstructor(InetSocketAddress.class, byte[].class, byte[].class, ByteBuffer.class, ByteBuffer.class);
+                c.newInstance(addr, okey, sign, msg, check_it);
             } catch (InstantiationException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }

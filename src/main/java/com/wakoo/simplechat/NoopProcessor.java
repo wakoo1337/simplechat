@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 
 public final class NoopProcessor extends MessageProcessor {
     String marker = "";
-    NoopProcessor(InetSocketAddress addr, byte[] okey, byte[] sign, ByteBuffer remain) {
-        super(addr, okey, sign, remain);
+    public NoopProcessor(InetSocketAddress addr, byte[] okey, byte[] sign, ByteBuffer remain, ByteBuffer check_it) {
+        super(addr, okey, sign, remain, check_it);
     }
 }
