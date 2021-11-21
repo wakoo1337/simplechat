@@ -142,7 +142,9 @@ public final class NetworkingProcessor implements Runnable {
 
     public void SendToAllButServer(Exportable exportable) {
         for (SelectionKey key : conn_sel.keys()) {
-            if (!key.equals(ServerConnection.SINGLETON.srv_key)) ((ClientConnection) key.attachment()).QueueMsgSend(exportable);
+            if ((!key.equals(ServerConnection.SINGLETON.srv_key)) && (key.attachment() != null)) ((ClientConnection) key.attachment()).QueueMsgSend(exportable);
         }
+        conn_sel.wakeup();
     }
+
 }

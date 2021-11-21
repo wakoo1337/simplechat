@@ -14,7 +14,7 @@ public final class MessageDispatcher {
             types.put(MessageTypes.MessageNoop,  (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.NoopProcessor"));
             types.put(MessageTypes.MessageEnter, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.EnterProcessor"));
             types.put(MessageTypes.MessageLeave, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.LeaveProcessor"));
-            types.put(MessageTypes.MessageText, null);
+            types.put(MessageTypes.MessageText,  (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.TextProcessor"));
             types.put(MessageTypes.MessageNicknameChange, null);
         } catch (ClassNotFoundException noclassexcp) {
 
