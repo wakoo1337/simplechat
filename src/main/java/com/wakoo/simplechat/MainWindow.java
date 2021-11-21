@@ -15,6 +15,8 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;
 
@@ -81,7 +83,8 @@ public final class MainWindow implements Initializable {
     }
 
     @FXML private void ButtonSend(ActionEvent event) {
-        msgField.getText();
+        MessageGenerator msggen = new TextGenerator(msgField.getText());
+        NetworkingProcessor.SINGLETON.SendToAll(msggen);
     }
 
     @FXML private TextField msgField;

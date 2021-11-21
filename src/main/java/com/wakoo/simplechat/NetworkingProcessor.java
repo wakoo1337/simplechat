@@ -89,7 +89,7 @@ public final class NetworkingProcessor implements Runnable {
         public static final ServerConnection SINGLETON = new ServerConnection();
         private boolean connected = false;
         public SocketChannel srv_conn;
-        private SelectionKey srv_key;
+        public SelectionKey srv_key;
         public ClientConnection cl_conn;
 
         public void ConnectServer(final InetAddress address, final int port) {
@@ -135,5 +135,14 @@ public final class NetworkingProcessor implements Runnable {
         private final MsgDisplay err_disp = new ErrorDisplay("Ошибка сети", "Ошибка при соединении с вышестоящим пользователем");
     }
 
+    public void SendToAll(Exportable exportable) {
+        SendToAllButServer(exportable);
+        ServerConnection.SINGLETON.cl_conn.QueueMsgSend(exportable);
+    }
 
+    public void SendToAllButServer(Exportable exportable) {
+        for (SelectionKey key : conn_sel.keys()) {
+            if (!key.equals(ServerConnection.SINGLETON.srv_key)) ((ClientConnection) key.attachment()).QueueMsgSend(exportable);
+        }
+    }
 }
