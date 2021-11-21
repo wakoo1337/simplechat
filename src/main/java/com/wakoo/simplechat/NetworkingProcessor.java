@@ -137,7 +137,7 @@ public final class NetworkingProcessor implements Runnable {
 
     public void SendToAll(Exportable exportable) {
         SendToAllButServer(exportable);
-        ServerConnection.SINGLETON.cl_conn.QueueMsgSend(exportable);
+        if (ServerConnection.SINGLETON.cl_conn != null) ServerConnection.SINGLETON.cl_conn.QueueMsgSend(exportable);
     }
 
     public void SendToAllButServer(Exportable exportable) {

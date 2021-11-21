@@ -59,7 +59,7 @@ public abstract class MessageGenerator implements Exportable {
     protected void insertString(final String str, final boolean begin) {
         final ByteBuffer str_bb = StandardCharsets.UTF_8.encode(str);
         if (!begin) {
-            insertInt(str.length(), false);
+            insertInt(str_bb.limit(), false);
             data.add(str_bb);
         } else {
             data.add(0, str_bb);
@@ -86,7 +86,7 @@ public abstract class MessageGenerator implements Exportable {
         data.add(0, okey_bb);
         SignMessage();
         int acc = 0;
-        for (ByteBuffer bb : data) acc += bb.capacity();
+        for (ByteBuffer bb : data) acc += bb.limit();
         header.putInt(acc);
         header.flip();
     }
