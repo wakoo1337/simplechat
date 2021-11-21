@@ -87,7 +87,7 @@ public final class ProfileCatalog {
         HashMap<String, PublicKey> map;
 
         private OpenKeyStorage() {
-            try (FileInputStream map_fi = new FileInputStream(settings_root.resolve("settings").toFile())) {
+            try (FileInputStream map_fi = new FileInputStream(settings_root.resolve("keys").toFile())) {
                 try (ObjectInputStream map_is = new ObjectInputStream(map_fi)) {
                    map = (HashMap<String, PublicKey>) map_is.readObject();
                 } catch (IOException ioexcp) {
@@ -113,7 +113,7 @@ public final class ProfileCatalog {
         }
 
         private void SaveStorage() {
-            try (FileOutputStream map_fo = new FileOutputStream(settings_root.resolve("settings").toFile(), false)) {
+            try (FileOutputStream map_fo = new FileOutputStream(settings_root.resolve("keys").toFile(), false)) {
                 try (ObjectOutputStream map_os = new ObjectOutputStream(map_fo)) {
                     map_os.writeObject(map);
                 }

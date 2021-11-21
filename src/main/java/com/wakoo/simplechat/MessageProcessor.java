@@ -28,7 +28,7 @@ public abstract class MessageProcessor {
                 sign = Signature.getInstance("SHA256withRSA");
                 sign.initVerify(this.okey);
                 sign.update(check_it);
-                sign_ok = this.sign.verify(sign_arr) && ProfileCatalog.OpenKeyStorage.SINGLETON.CheckNicknameKeyMapping(nickname, okey);
+                sign_ok = sign.verify(sign_arr) && ProfileCatalog.OpenKeyStorage.SINGLETON.CheckNicknameKeyMapping(nickname, okey);
             } catch (InvalidKeySpecException e) {
                 disp.DisplayMessage("Не получается сгенерировать открытый ключ");
             } catch (InvalidKeyException e) {
