@@ -18,7 +18,6 @@ public abstract class MessageProcessor {
     String marker = "";
 
     MessageProcessor(InetSocketAddress party, final byte[] okey_arr, final byte[] sign_arr, ByteBuffer remain_in, ByteBuffer check_it) {
-        final ByteBuffer check_bb = remain_in.asReadOnlyBuffer();
         remain = remain_in;
         nickname = GetString();
         X509EncodedKeySpec x509 = new X509EncodedKeySpec(okey_arr);
@@ -28,8 +27,8 @@ public abstract class MessageProcessor {
                 okey = kf.generatePublic(x509);
                 sign = Signature.getInstance("SHA256withRSA");
                 sign.initVerify(this.okey);
-                sign.update(check_bb);
-                sign_ok = this.sign.verify(check_it.array()) && ProfileCatalog.OpenKeyStorage.SINGLETON.CheckNicknameKeyMapping(nickname, okey);
+                sign.update(check_it);
+                sign_ok = this.sign.verify(sign_arr) && ProfileCatalog.OpenKeyStorage.SINGLETON.CheckNicknameKeyMapping(nickname, okey);
             } catch (InvalidKeySpecException e) {
                 disp.DisplayMessage("Не получается сгенерировать открытый ключ");
             } catch (InvalidKeyException e) {
