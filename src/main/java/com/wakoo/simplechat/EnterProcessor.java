@@ -6,8 +6,8 @@ import java.nio.ByteBuffer;
 public final class EnterProcessor extends MessageProcessor {
     public final String marker = ">>>";
 
-    EnterProcessor(final int type, final ByteBuffer msg) {
-        super(type, msg);
+    EnterProcessor(InetSocketAddress addr, byte[] okey, byte[] sign, ByteBuffer remain) {
+        super(addr, okey, sign, remain);
         ChatBox.SINGLETON.AddMessage("В чат зашёл " + nickname, this);
     }
 }

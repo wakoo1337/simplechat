@@ -24,6 +24,7 @@ public final class SettingsWindow implements Initializable {
         event.consume();
         ProfileCatalog.SINGLETON.setNickname(nicknameBox.getText());
         ProfileCatalog.SINGLETON.setListenPort(portBox.getValue());
+        ProfileCatalog.SINGLETON.SaveSettings();
     }
 
     @FXML private void newKeyPairClick(ActionEvent event) {

@@ -1,5 +1,6 @@
 package com.wakoo.simplechat;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
@@ -8,22 +9,15 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
 public abstract class MessageProcessor {
-    protected final byte[] sign_arr;
     protected Signature sign;
-    protected final byte[] okey_arr;
     protected PublicKey okey;
-    protected final String nickname;
-    protected final ByteBuffer remain;
+    protected String nickname;
+    protected ByteBuffer remain;
     protected boolean sign_ok;
 
     String marker = "";
 
-    MessageProcessor(final int type, final ByteBuffer msg) {
-        remain = msg;
-        sign_arr = new byte[256];
-        msg.get(sign_arr);
-        okey_arr = new byte[294];
-        msg.get(okey_arr);
+    MessageProcessor(InetSocketAddress party, final byte[] okey_arr, final byte[] sign_arr, ByteBuffer remain_in) {
         nickname = GetString();
         X509EncodedKeySpec x509 = new X509EncodedKeySpec(okey_arr);
         try {
@@ -31,11 +25,10 @@ public abstract class MessageProcessor {
             try {
                 okey = kf.generatePublic(x509);
                 sign = Signature.getInstance("SHA256withRSA");
-                sign.initVerify(okey);
-                ByteBuffer check_bb = msg.duplicate();
-                check_bb.order(ByteOrder.LITTLE_ENDIAN);
-                sign.update(check_bb);
-                sign_ok = sign.verify(sign_arr) && ProfileCatalog.OpenKeyStorage.SINGLETON.CheckNicknameKeyMapping(nickname, okey);
+                sign.initVerify(this.okey);
+                sign.update(remain.asReadOnlyBuffer());
+                sign_ok = this.sign.verify(sign_arr) && ProfileCatalog.OpenKeyStorage.SINGLETON.CheckNicknameKeyMapping(nickname, this.okey);
+                remain = remain_in;
             } catch (InvalidKeySpecException e) {
                 disp.DisplayMessage("Не получается сгенерировать открытый ключ");
             } catch (InvalidKeyException e) {

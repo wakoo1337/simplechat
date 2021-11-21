@@ -35,8 +35,8 @@ public final class ClientConnection implements AutoCloseable {
                 in_msg.flip();
                 new MessageDispatcher(in_msg, (InetSocketAddress) channel.getRemoteAddress());
                 in_msg = null;
+                in_hdr.clear();
             }
-            in_hdr.clear();
         }
     }
     private void CreateInHdr() {

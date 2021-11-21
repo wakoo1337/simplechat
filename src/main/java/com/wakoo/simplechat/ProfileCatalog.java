@@ -125,30 +125,4 @@ public final class ProfileCatalog {
         }
 
     }
-
-    /*public byte[] SignMessage(final byte[] input) {
-        try {
-            Signature signer = Signature.getInstance("SHA256withRSA");
-            try {
-                signer.initSign(SettingsData.SINGLETON.my_keypair.getPrivate());
-                try {
-                    byte[] padded = new byte[256 + input.length];
-                    for (int i=0;i < input.length;i++) padded[256+i] = input[i];
-                    signer.update(padded);
-                    byte[] signature;
-                    signature = signer.sign();
-                    assert(signature.length == 256);
-                    for (int i=0;i < 256;i++) padded[i] = signature[i];
-                    return padded;
-                } catch (SignatureException sigexcp) {
-                    save_display.DisplayMessage("Невозможно вычислить цифровую подпись");
-                }
-            } catch (InvalidKeyException invkeyexcp) {
-                save_display.DisplayMessage("Неверный объект ключа");
-            }
-        } catch (NoSuchAlgorithmException noalgoexcp) {
-            save_display.DisplayMessage("У вас не поддерживается алгоритм SHA256 с RSA");
-        }
-        return null;
-    }*/
 }

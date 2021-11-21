@@ -5,9 +5,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
-public final class MessageDispatcher implements Runnable {
-    private final ByteBuffer msg;
-    private final InetSocketAddress party_addr;
+public final class MessageDispatcher {
     private static final HashMap<Integer, Class<?>> types;
     static {
         types = new HashMap<>();
@@ -22,23 +20,19 @@ public final class MessageDispatcher implements Runnable {
         }
     }
     public MessageDispatcher(final ByteBuffer msg, final InetSocketAddress addr) {
-        this.msg = msg;
-        this.party_addr = addr;
+        byte[] sign = new byte[256];
+        msg.get(sign);
+        byte[] okey = new byte[294];
+        msg.get(okey);
         final int type = msg.getInt();
         Class<?> msgproc = types.get(type);
         if (msgproc != null) {
             try {
-                msgproc.getConstructor(int.class, ByteBuffer.class).newInstance(type, msg);
+                msgproc.getConstructor(InetSocketAddress.class, byte[].class, byte[].class, ByteBuffer.class).newInstance(addr, sign, okey, msg);
             } catch (InstantiationException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
         }
-    }
-    @Override
-    public void run() {
-        final int type;
-        type = msg.getInt();
-        types.get(type);
     }
 
     public static final class MessageTypes {
