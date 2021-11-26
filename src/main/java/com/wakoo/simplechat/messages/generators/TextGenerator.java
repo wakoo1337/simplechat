@@ -12,10 +12,14 @@ public class TextGenerator extends MessageGenerator implements TextMessage {
         insertString(text, false);
         finish();
     }
+
     public String getMarker() {
         return "   ";
     }
-    public boolean getSignOk() {return true;}
+
+    public boolean getSignOk() {
+        return true;
+    }
 
     @Override
     public String getText() {

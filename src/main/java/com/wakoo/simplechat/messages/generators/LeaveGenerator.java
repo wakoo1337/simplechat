@@ -11,5 +11,8 @@ public class LeaveGenerator extends MessageGenerator {
         super(MessageTypes.MessageLeave);
         finish();
     }
-    public boolean getSignOk() {return true;}
+
+    public boolean getSignOk() {
+        return true;
+    }
 }

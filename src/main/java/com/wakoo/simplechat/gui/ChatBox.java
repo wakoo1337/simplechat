@@ -10,9 +10,11 @@ public final class ChatBox {
     public static final ChatBox SINGLETON = new ChatBox();
     private static final StringBuilder sb = new StringBuilder();
     private TextArea area;
+
     public void setArea(TextArea area) {
         this.area = area;
     }
+
     public void addMessage(final String msg, final Message msgproc) {
         Platform.runLater(() -> {
             sb.append(msgproc.getMarker());

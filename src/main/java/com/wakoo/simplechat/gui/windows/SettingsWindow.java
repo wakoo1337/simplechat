@@ -13,22 +13,27 @@ import java.util.ResourceBundle;
 
 public final class SettingsWindow implements Initializable {
 
-    @FXML private TextField nicknameBox;
-    @FXML private Spinner<Integer> portBox;
+    @FXML
+    private TextField nicknameBox;
+    @FXML
+    private Spinner<Integer> portBox;
 
-    @FXML  private void resetClick(ActionEvent event) {
+    @FXML
+    private void resetClick(ActionEvent event) {
         event.consume();
         reset();
     }
 
-    @FXML private void okClick(ActionEvent event) {
+    @FXML
+    private void okClick(ActionEvent event) {
         event.consume();
         ProfileCatalog.SINGLETON.setNickname(nicknameBox.getText());
         ProfileCatalog.SINGLETON.setListenPort(portBox.getValue());
         ProfileCatalog.SINGLETON.saveSettings();
     }
 
-    @FXML private void newKeyPairClick(ActionEvent event) {
+    @FXML
+    private void newKeyPairClick(ActionEvent event) {
         event.consume();
         ProfileCatalog.SINGLETON.newKeyPair();
     }

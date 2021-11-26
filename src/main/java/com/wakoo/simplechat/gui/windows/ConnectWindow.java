@@ -21,9 +21,12 @@ import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
 public final class ConnectWindow implements Initializable {
-    @FXML private GridPane windowPane;
-    @FXML private Spinner<Integer> portSpinner;
-    @FXML private TextField netAddress;
+    @FXML
+    private GridPane windowPane;
+    @FXML
+    private Spinner<Integer> portSpinner;
+    @FXML
+    private TextField netAddress;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

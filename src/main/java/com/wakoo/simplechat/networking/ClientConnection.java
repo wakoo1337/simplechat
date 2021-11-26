@@ -32,7 +32,7 @@ public final class ClientConnection implements AutoCloseable {
         createInHdr();
     }
 
-    public void processInData() throws IOException, ProtocolException,ReflectiveOperationException {
+    public void processInData() throws IOException, ProtocolException, ReflectiveOperationException {
         if (in_hdr.hasRemaining()) {
             channel.read(in_hdr);
             if (!in_hdr.hasRemaining()) {

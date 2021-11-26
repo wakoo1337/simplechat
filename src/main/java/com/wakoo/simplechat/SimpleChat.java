@@ -9,11 +9,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 
 public final class SimpleChat extends Application {
     public static Stage main_stage;
-    @Override public void start(Stage stage) {
+
+    @Override
+    public void start(Stage stage) {
         Platform.setImplicitExit(true);
         final NetworkingProcessor futile = NetworkingProcessor.SINGLETON; // FIXME запускаем синглтонный тред дико омским способом
         stage.setOnCloseRequest(close -> {

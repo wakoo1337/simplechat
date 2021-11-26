@@ -5,6 +5,8 @@ import java.util.List;
 
 public interface Message {
     List<ByteBuffer> export();
+
     String getMarker();
+
     boolean getSignOk();
 }

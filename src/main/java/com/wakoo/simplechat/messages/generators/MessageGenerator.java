@@ -24,30 +24,32 @@ public abstract class MessageGenerator implements Message {
         insertMsgType(type);
         insertString(ProfileCatalog.SINGLETON.getNickname(), false);
     }
+
     private void signMessage() {
-            ByteBuffer signature;
+        ByteBuffer signature;
+        try {
+            Signature signer = Signature.getInstance("SHA256withRSA");
             try {
-                Signature signer = Signature.getInstance("SHA256withRSA");
+                signer.initSign(ProfileCatalog.SINGLETON.getClosedKey());
                 try {
-                    signer.initSign(ProfileCatalog.SINGLETON.getClosedKey());
-                    try {
-                        for (ByteBuffer element : data) signer.update(element.asReadOnlyBuffer());
-                        signature = ByteBuffer.wrap(signer.sign());
-                        assert (signature.capacity() == 256);
-                        //signature.flip();
-                        data.add(0, signature);
-                    } catch (SignatureException sigexcp) {
-                        disp.displayMessage(sigexcp, "Невозможно вычислить цифровую подпись");
-                    }
-                } catch (InvalidKeyException invkeyexcp) {
-                    disp.displayMessage(invkeyexcp, "Неверный объект ключа");
+                    for (ByteBuffer element : data) signer.update(element.asReadOnlyBuffer());
+                    signature = ByteBuffer.wrap(signer.sign());
+                    assert (signature.capacity() == 256);
+                    //signature.flip();
+                    data.add(0, signature);
+                } catch (SignatureException sigexcp) {
+                    disp.displayMessage(sigexcp, "Невозможно вычислить цифровую подпись");
                 }
-            } catch (NoSuchAlgorithmException noalgoexcp) {
-                disp.displayMessage(noalgoexcp, "У вас не поддерживается алгоритм SHA256 с RSA");
+            } catch (InvalidKeyException invkeyexcp) {
+                disp.displayMessage(invkeyexcp, "Неверный объект ключа");
             }
+        } catch (NoSuchAlgorithmException noalgoexcp) {
+            disp.displayMessage(noalgoexcp, "У вас не поддерживается алгоритм SHA256 с RSA");
+        }
     }
 
     private static final MsgDisplay disp;
+
     static {
         disp = new ErrorDisplay();
     }

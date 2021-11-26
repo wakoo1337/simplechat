@@ -38,11 +38,11 @@ public abstract class MessageProcessor implements Message {
                 sign.update(check_it);
                 sign_ok = sign.verify(sign_arr) && ProfileCatalog.OpenKeyStorage.SINGLETON.checkNicknameKeyMapping(nickname, okey);
             } catch (InvalidKeySpecException invkeyspecexcp) {
-                disp.displayMessage(invkeyspecexcp,"Не получается сгенерировать открытый ключ");
+                disp.displayMessage(invkeyspecexcp, "Не получается сгенерировать открытый ключ");
             } catch (InvalidKeyException invkeyexcp) {
-                disp.displayMessage(invkeyexcp,"Ключ не проходит для проверки ЭЦП");
+                disp.displayMessage(invkeyexcp, "Ключ не проходит для проверки ЭЦП");
             } catch (SignatureException sigexcp) {
-                disp.displayMessage(sigexcp,"Не получается проверить ЭЦП");
+                disp.displayMessage(sigexcp, "Не получается проверить ЭЦП");
             }
         } catch (NoSuchAlgorithmException noalgoexcp) {
             disp.displayMessage(noalgoexcp, "Нет такого алгоритма");
@@ -54,12 +54,14 @@ public abstract class MessageProcessor implements Message {
     protected String getString() {
         final int len = remain.getInt();
         ByteBuffer bb = ByteBuffer.allocate(len);
-        for (int i=0;i < len;i++) bb.put(remain.get());
+        for (int i = 0; i < len; i++) bb.put(remain.get());
         bb.flip();
         return StandardCharsets.UTF_8.decode(bb).toString();
     }
 
-    public boolean getSignOk() {return sign_ok;}
+    public boolean getSignOk() {
+        return sign_ok;
+    }
 
     public List<ByteBuffer> export() {
         ByteBuffer[] bba = new ByteBuffer[2];

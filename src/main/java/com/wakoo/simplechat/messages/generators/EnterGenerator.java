@@ -11,5 +11,8 @@ public final class EnterGenerator extends MessageGenerator {
     public String getMarker() {
         return ">>>";
     }
-    public boolean getSignOk() {return true;}
+
+    public boolean getSignOk() {
+        return true;
+    }
 }

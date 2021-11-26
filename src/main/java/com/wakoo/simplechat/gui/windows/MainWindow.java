@@ -29,7 +29,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public final class MainWindow implements Initializable {
-    @FXML private void menuActionConnect(ActionEvent event) {
+    @FXML
+    private void menuActionConnect(ActionEvent event) {
         event.consume();
         Stage connect_stage = new Stage();
         FXMLLoader loader = new FXMLLoader();
@@ -39,7 +40,7 @@ public final class MainWindow implements Initializable {
             GridPane rootLayout = loader.load();
             connect_stage.setScene(new Scene(rootLayout));
         } catch (IOException ioexcp) {
-            connerr_disp.displayMessage(ioexcp,"Ошибка ввода-вывода FXML-файла окна подключения к сервера");
+            connerr_disp.displayMessage(ioexcp, "Ошибка ввода-вывода FXML-файла окна подключения к сервера");
         }
         connect_stage.initOwner(SimpleChat.main_stage);
         connect_stage.initModality(Modality.APPLICATION_MODAL);
@@ -47,7 +48,8 @@ public final class MainWindow implements Initializable {
 
     }
 
-    @FXML private void menuActionDisconnect(ActionEvent event) {
+    @FXML
+    private void menuActionDisconnect(ActionEvent event) {
         try {
             NetworkingProcessor.ServerConnection.SINGLETON.disconnectServer();
         } catch (IOException ioexcp) {
@@ -55,7 +57,8 @@ public final class MainWindow implements Initializable {
         }
     }
 
-    @FXML private void menuActionExit(ActionEvent event) {
+    @FXML
+    private void menuActionExit(ActionEvent event) {
         event.consume();
         SimpleChat.main_stage.close();
     }
@@ -68,7 +71,8 @@ public final class MainWindow implements Initializable {
         about.displayMessage("SimpleChat -- клиент децентрализованного чата для ЛВС");
     }
 
-    @FXML private void menuActionSettings(ActionEvent event) {
+    @FXML
+    private void menuActionSettings(ActionEvent event) {
         event.consume();
         Stage settings_stage = new Stage();
         FXMLLoader loader = new FXMLLoader();
@@ -86,7 +90,8 @@ public final class MainWindow implements Initializable {
         settings_stage.show();
     }
 
-    @FXML private TextArea chatTextArea;
+    @FXML
+    private TextArea chatTextArea;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -98,15 +103,18 @@ public final class MainWindow implements Initializable {
         ConnectDisconnectItems.SINGLETON.lockConnectDisconnect(false);
     }
 
-    @FXML private void buttonActionSend(ActionEvent event) {
+    @FXML
+    private void buttonActionSend(ActionEvent event) {
         TextMessage msggen = new TextGenerator(msgField.getText());
         NetworkingProcessor.SINGLETON.sendToAll(msggen);
         ChatBox.SINGLETON.addMessage(msggen.getText(), msggen);
     }
 
-    @FXML private TextField msgField;
+    @FXML
+    private TextField msgField;
 
-    @FXML private MenuItem connectMenuItem, disconnectMenuItem;
+    @FXML
+    private MenuItem connectMenuItem, disconnectMenuItem;
 
     MsgDisplay connerr_disp = new ErrorDisplay("Ошибка при установке или разрыве соединения с сервером");
 }

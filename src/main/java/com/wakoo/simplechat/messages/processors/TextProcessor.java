@@ -14,6 +14,7 @@ public class TextProcessor extends MessageProcessor implements TextMessage {
         text = getString();
         ChatBox.SINGLETON.addMessage("<" + nickname + "> " + text, this);
     }
+
     public String getMarker() {
         return "   ";
     }

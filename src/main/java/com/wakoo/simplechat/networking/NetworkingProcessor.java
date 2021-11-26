@@ -103,30 +103,30 @@ public final class NetworkingProcessor implements Runnable {
 
         public void connectServer(final InetAddress address, final int port) throws IOException {
             if (!connected) {
-                    srv_conn = SocketChannel.open();
-                    srv_conn.connect(new InetSocketAddress(address, port));
-                    srv_conn.configureBlocking(false);
-                    synchronized (sel_sync) {
-                        srv_key = srv_conn.register(conn_sel, SelectionKey.OP_READ);
-                        cl_conn = new ClientConnection(srv_key);
-                        srv_key.attach(cl_conn);
-                        conn_sel.wakeup();
-                    }
-                    connected = true;
-                    ConnectDisconnectItems.SINGLETON.lockConnectDisconnect(true);
+                srv_conn = SocketChannel.open();
+                srv_conn.connect(new InetSocketAddress(address, port));
+                srv_conn.configureBlocking(false);
+                synchronized (sel_sync) {
+                    srv_key = srv_conn.register(conn_sel, SelectionKey.OP_READ);
+                    cl_conn = new ClientConnection(srv_key);
+                    srv_key.attach(cl_conn);
+                    conn_sel.wakeup();
+                }
+                connected = true;
+                ConnectDisconnectItems.SINGLETON.lockConnectDisconnect(true);
             }
         }
 
         public void disconnectServer() throws IOException {
             if (connected) {
-                    synchronized (sel_sync) {
-                        srv_key.cancel();
-                        srv_conn.close();
-                        conn_sel.wakeup();
-                    }
-                    srv_conn = null;
-                    srv_key = null;
-                    connected = false;
+                synchronized (sel_sync) {
+                    srv_key.cancel();
+                    srv_conn.close();
+                    conn_sel.wakeup();
+                }
+                srv_conn = null;
+                srv_key = null;
+                connected = false;
                 ConnectDisconnectItems.SINGLETON.lockConnectDisconnect(false);
             }
         }
@@ -145,7 +145,8 @@ public final class NetworkingProcessor implements Runnable {
 
     public void sendToAllButServer(Message message) {
         for (SelectionKey key : conn_sel.keys()) {
-            if ((!key.equals(ServerConnection.SINGLETON.srv_key)) && (key.attachment() != null)) ((ClientConnection) key.attachment()).queueMsgSend(message);
+            if ((!key.equals(ServerConnection.SINGLETON.srv_key)) && (key.attachment() != null))
+                ((ClientConnection) key.attachment()).queueMsgSend(message);
         }
         conn_sel.wakeup();
     }
