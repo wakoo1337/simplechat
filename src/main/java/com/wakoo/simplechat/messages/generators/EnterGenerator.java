@@ -3,7 +3,7 @@ package com.wakoo.simplechat.messages.generators;
 import com.wakoo.simplechat.messages.MessageTypes;
 
 public final class EnterGenerator extends MessageGenerator {
-    EnterGenerator() {
+    public EnterGenerator() {
         super(MessageTypes.MessageEnter);
         finish();
     }
