@@ -1,4 +1,10 @@
-package com.wakoo.simplechat;
+package com.wakoo.simplechat.messages.generators;
+
+import com.wakoo.simplechat.*;
+import com.wakoo.simplechat.displays.ErrorDisplay;
+import com.wakoo.simplechat.displays.MsgDisplay;
+import com.wakoo.simplechat.messages.MessageTypes;
+import com.wakoo.simplechat.messages.Message;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -9,16 +15,16 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.util.ArrayList;
 
-public abstract class MessageGenerator implements Exportable {
+public abstract class MessageGenerator implements Message {
     MessageGenerator(final int type) {
         header = ByteBuffer.allocate(8);
         header.order(ByteOrder.LITTLE_ENDIAN);
-        header.putInt(MessageDispatcher.MessageTypes.magic);
+        header.putInt(MessageTypes.magic);
         data = new ArrayList<ByteBuffer>();
         insertMsgType(type);
         insertString(ProfileCatalog.SINGLETON.getNickname(), false);
     }
-    private void SignMessage() {
+    private void signMessage() {
             ByteBuffer signature;
             try {
                 Signature signer = Signature.getInstance("SHA256withRSA");
@@ -31,13 +37,13 @@ public abstract class MessageGenerator implements Exportable {
                         //signature.flip();
                         data.add(0, signature);
                     } catch (SignatureException sigexcp) {
-                        disp.DisplayMessage("Невозможно вычислить цифровую подпись");
+                        disp.displayMessage(sigexcp, "Невозможно вычислить цифровую подпись");
                     }
                 } catch (InvalidKeyException invkeyexcp) {
-                    disp.DisplayMessage("Неверный объект ключа");
+                    disp.displayMessage(invkeyexcp, "Неверный объект ключа");
                 }
             } catch (NoSuchAlgorithmException noalgoexcp) {
-                disp.DisplayMessage("У вас не поддерживается алгоритм SHA256 с RSA");
+                disp.displayMessage(noalgoexcp, "У вас не поддерживается алгоритм SHA256 с RSA");
             }
     }
 
@@ -51,8 +57,8 @@ public abstract class MessageGenerator implements Exportable {
 
     public ArrayList<ByteBuffer> export() {
         ArrayList<ByteBuffer> out = new ArrayList<ByteBuffer>();
-        out.add(header);
-        out.addAll(data);
+        out.add(header.asReadOnlyBuffer());
+        for (ByteBuffer bb : data) out.add(bb.asReadOnlyBuffer());
         return out;
     }
 
@@ -80,11 +86,11 @@ public abstract class MessageGenerator implements Exportable {
         else data.add(bb);
     }
 
-    protected void Finish() {
+    protected void finish() {
         ByteBuffer okey_bb = ByteBuffer.wrap(ProfileCatalog.SINGLETON.getOpenKey().getEncoded());
         //okey_bb.flip();
         data.add(0, okey_bb);
-        SignMessage();
+        signMessage();
         int acc = 0;
         for (ByteBuffer bb : data) acc += bb.limit();
         header.putInt(acc);

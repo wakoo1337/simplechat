@@ -1,21 +1,21 @@
-package com.wakoo.simplechat;
+package com.wakoo.simplechat.displays;
 
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 
 public final class InfoDisplay extends MsgDisplay {
-    InfoDisplay(String title, String header) {
+    public InfoDisplay(String title, String header) {
         super(title, header);
         Platform.runLater(() -> {
             this.alert.setAlertType(Alert.AlertType.INFORMATION);
         });
     }
 
-    InfoDisplay() {
+    public InfoDisplay() {
         this("Сообщение", "Сообщение");
     }
 
-    InfoDisplay(String title) {
+    public InfoDisplay(String title) {
         this(title, title);
     }
 }

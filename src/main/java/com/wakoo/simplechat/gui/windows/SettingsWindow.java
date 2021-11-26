@@ -1,5 +1,6 @@
-package com.wakoo.simplechat;
+package com.wakoo.simplechat.gui.windows;
 
+import com.wakoo.simplechat.ProfileCatalog;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,12 +25,12 @@ public final class SettingsWindow implements Initializable {
         event.consume();
         ProfileCatalog.SINGLETON.setNickname(nicknameBox.getText());
         ProfileCatalog.SINGLETON.setListenPort(portBox.getValue());
-        ProfileCatalog.SINGLETON.SaveSettings();
+        ProfileCatalog.SINGLETON.saveSettings();
     }
 
     @FXML private void newKeyPairClick(ActionEvent event) {
         event.consume();
-        ProfileCatalog.SINGLETON.NewKeyPair();
+        ProfileCatalog.SINGLETON.newKeyPair();
     }
 
     private void reset() {

@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane fx:id="windowPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wakoo.simplechat.ConnectWindow">
+<GridPane fx:id="windowPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wakoo.simplechat.gui.windows.ConnectWindow">
    <columnConstraints>
       <ColumnConstraints />
       <ColumnConstraints hgrow="ALWAYS" minWidth="160.0" />

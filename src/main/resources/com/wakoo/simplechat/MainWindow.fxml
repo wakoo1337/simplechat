@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wakoo.simplechat.MainWindow">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wakoo.simplechat.gui.windows.MainWindow">
   <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="240.0" minWidth="60.0" />
       <ColumnConstraints hgrow="SOMETIMES" />
@@ -30,12 +30,12 @@
         <menus>
           <Menu mnemonicParsing="false" text="Чат">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#MenuActionConnect" text="Подключиться" />
-                  <MenuItem mnemonicParsing="false" onAction="#MenuActionDisconnect" text="Отключиться" />
+              <MenuItem fx:id="connectMenuItem" mnemonicParsing="false" onAction="#menuActionConnect" text="Подключиться" />
+                  <MenuItem fx:id="disconnectMenuItem" mnemonicParsing="false" onAction="#menuActionDisconnect" text="Отключиться" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                <MenuItem mnemonicParsing="false" onAction="#MenuActionSettings" text="Настройки" />
+                <MenuItem mnemonicParsing="false" onAction="#menuActionSettings" text="Настройки" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#MenuActionExit" text="Выход" />
+                  <MenuItem mnemonicParsing="false" onAction="#menuActionExit" text="Выход" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">
@@ -45,12 +45,12 @@
           </Menu>
           <Menu mnemonicParsing="false" text="Справка">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#MenuActionAbout" text="О программе" />
+              <MenuItem mnemonicParsing="false" onAction="#menuActionAbout" text="О программе" />
             </items>
           </Menu>
         </menus>
       </MenuBar>
-      <Button alignment="CENTER" mnemonicParsing="false" onAction="#ButtonSend" text="Отправить" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+      <Button alignment="CENTER" mnemonicParsing="false" onAction="#buttonActionSend" text="Отправить" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
       <TextField fx:id="msgField" promptText="Сообщения писать сюда" GridPane.columnSpan="2" GridPane.rowIndex="2" />
       <VBox GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
          <children>
@@ -61,7 +61,7 @@
       <VBox GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
          <children>
             <Label text="История сообщений" />
-            <TextArea fx:id="ChatTextArea" editable="false" text="Тут будет история сообщений" VBox.vgrow="ALWAYS" />
+            <TextArea fx:id="chatTextArea" editable="false" text="Тут будет история сообщений" VBox.vgrow="ALWAYS" />
          </children>
       </VBox>
    </children>

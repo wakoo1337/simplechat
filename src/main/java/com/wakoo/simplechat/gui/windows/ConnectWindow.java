@@ -1,5 +1,10 @@
-package com.wakoo.simplechat;
+package com.wakoo.simplechat.gui.windows;
 
+import com.wakoo.simplechat.ProfileCatalog;
+import com.wakoo.simplechat.SimpleChat;
+import com.wakoo.simplechat.displays.ErrorDisplay;
+import com.wakoo.simplechat.displays.MsgDisplay;
+import com.wakoo.simplechat.networking.NetworkingProcessor;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -9,8 +14,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
@@ -28,13 +33,17 @@ public final class ConnectWindow implements Initializable {
 
     public void onConnect(ActionEvent event) {
         try {
-            NetworkingProcessor.ServerConnection.SINGLETON.ConnectServer(InetAddress.getByName(netAddress.getText()), portSpinner.getValueFactory().getValue());
+            NetworkingProcessor.ServerConnection.SINGLETON.connectServer(InetAddress.getByName(netAddress.getText()), portSpinner.getValueFactory().getValue());
         } catch (UnknownHostException uhostexcp) {
-            (new ErrorDisplay("Ошибка при соединении")).DisplayMessage("Нет такого хоста");
+            err.displayMessage(uhostexcp, "Нет такого хоста");
+        } catch (IOException ioexcp) {
+            err.displayMessage(ioexcp, "Ошибка ввода-вывода");
         }
     }
 
     public void onCancel(ActionEvent event) {
         ((Stage) windowPane.getScene().getWindow()).close();
     }
+
+    MsgDisplay err = new ErrorDisplay("Ошибка при соединении с сервером");
 }

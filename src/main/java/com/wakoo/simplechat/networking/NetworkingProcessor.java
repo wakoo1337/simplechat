@@ -1,4 +1,10 @@
-package com.wakoo.simplechat;
+package com.wakoo.simplechat.networking;
+
+import com.wakoo.simplechat.ProfileCatalog;
+import com.wakoo.simplechat.displays.ErrorDisplay;
+import com.wakoo.simplechat.displays.MsgDisplay;
+import com.wakoo.simplechat.gui.ConnectDisconnectItems;
+import com.wakoo.simplechat.messages.Message;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -19,7 +25,7 @@ public final class NetworkingProcessor implements Runnable {
         try {
             conn_sel = Selector.open();
         } catch (IOException ioexcp) {
-            err_disp.DisplayMessage("Невозможно создать селектор");
+            err_disp.displayMessage(ioexcp, "Невозможно создать селектор");
         }
         (new Thread(this, "Поток обработки сети")).start();
     }
@@ -31,7 +37,7 @@ public final class NetworkingProcessor implements Runnable {
             conn_listener.socket().setReuseAddress(true);
             conn_listener.configureBlocking(false);
             SelectionKey conn_key = conn_listener.register(conn_sel, SelectionKey.OP_ACCEPT);
-            while (true) {
+            while (!stop) {
                 conn_sel.select();
                 synchronized (sel_sync) {
                     Set<SelectionKey> selected = conn_sel.selectedKeys();
@@ -45,19 +51,17 @@ public final class NetworkingProcessor implements Runnable {
                                     new_key = sock.register(conn_sel, SelectionKey.OP_READ);
                                     new_key.attach(new ClientConnection(new_key));
                                 }
-                                MessageGenerator msggen = new EnterGenerator();
-                                ((ClientConnection) new_key.attachment()).QueueMsgSend(msggen);
                             }
                         } else {
+                            ClientConnection connection = (ClientConnection) key.attachment();
+                            SocketChannel channel = (SocketChannel) key.channel();
                             try {
-                                ClientConnection connection = (ClientConnection) key.attachment();
-                                SocketChannel channel = (SocketChannel) key.channel();
-                                if (channel.isConnected()) {
+                                if (!channel.socket().isClosed()) {
                                     if (key.isReadable()) {
-                                        connection.ProcessInData();
+                                        connection.processInData();
                                     }
                                     if (key.isWritable()) {
-                                        connection.WriteOutData();
+                                        connection.writeOutData();
                                     }
                                 } else {
                                     key.cancel();
@@ -67,19 +71,24 @@ public final class NetworkingProcessor implements Runnable {
                                 }
                             } catch (IOException ioexcp) {
                                 key.cancel();
-                                key.channel().close();
-                                err_disp.DisplayMessage("Ошибка ввода-вывода на сокете");
+                                channel.close();
+                                err_disp.displayMessage(ioexcp, "Ошибка ввода-вывода на сокете");
                             } catch (ProtocolException protoexcp) {
                                 key.cancel();
-                                key.channel().close();
-                                err_disp.DisplayMessage("Неверно сформированное сообщение на сокете");
+                                channel.close();
+                                err_disp.displayMessage(protoexcp, "Неверно сформированное сообщение на сокете");
+                            } catch (ReflectiveOperationException reflopexcp) {
+                                err_disp.displayMessage(reflopexcp, "Невозможно создать экземпляр класса-обработчика сетевого сообщения");
                             }
                         }
                     }
                 }
             }
+            for (SelectionKey key : conn_sel.keys()) {
+                key.channel().close();
+            }
         } catch (IOException ioexcp) {
-            err_disp.DisplayMessage("Проблемы с ожиданием соединения");
+            err_disp.displayMessage(ioexcp, "Проблемы с ожиданием соединения");
         }
     }
 
@@ -92,9 +101,8 @@ public final class NetworkingProcessor implements Runnable {
         public SelectionKey srv_key;
         public ClientConnection cl_conn;
 
-        public void ConnectServer(final InetAddress address, final int port) {
+        public void connectServer(final InetAddress address, final int port) throws IOException {
             if (!connected) {
-                try {
                     srv_conn = SocketChannel.open();
                     srv_conn.connect(new InetSocketAddress(address, port));
                     srv_conn.configureBlocking(false);
@@ -105,26 +113,21 @@ public final class NetworkingProcessor implements Runnable {
                         conn_sel.wakeup();
                     }
                     connected = true;
-                } catch (IOException ioexcp) {
-                    err_disp.DisplayMessage("Невозможно соединиться с вышестоящим сервером");
-                }
+                    ConnectDisconnectItems.SINGLETON.lockConnectDisconnect(true);
             }
         }
 
-        public void DisconnectServer() {
+        public void disconnectServer() throws IOException {
             if (connected) {
-                try {
                     synchronized (sel_sync) {
                         srv_key.cancel();
                         srv_conn.close();
                         conn_sel.wakeup();
                     }
-                    connected = false;
                     srv_conn = null;
                     srv_key = null;
-                } catch (IOException ioexcp) {
-                    err_disp.DisplayMessage("Невозможно закрыть соединение");
-                }
+                    connected = false;
+                ConnectDisconnectItems.SINGLETON.lockConnectDisconnect(false);
             }
         }
 
@@ -135,16 +138,22 @@ public final class NetworkingProcessor implements Runnable {
         private final MsgDisplay err_disp = new ErrorDisplay("Ошибка сети", "Ошибка при соединении с вышестоящим пользователем");
     }
 
-    public void SendToAll(Exportable exportable) {
-        SendToAllButServer(exportable);
-        if (ServerConnection.SINGLETON.cl_conn != null) ServerConnection.SINGLETON.cl_conn.QueueMsgSend(exportable);
+    public void sendToAll(Message message) {
+        sendToAllButServer(message);
+        if (ServerConnection.SINGLETON.cl_conn != null) ServerConnection.SINGLETON.cl_conn.queueMsgSend(message);
     }
 
-    public void SendToAllButServer(Exportable exportable) {
+    public void sendToAllButServer(Message message) {
         for (SelectionKey key : conn_sel.keys()) {
-            if ((!key.equals(ServerConnection.SINGLETON.srv_key)) && (key.attachment() != null)) ((ClientConnection) key.attachment()).QueueMsgSend(exportable);
+            if ((!key.equals(ServerConnection.SINGLETON.srv_key)) && (key.attachment() != null)) ((ClientConnection) key.attachment()).queueMsgSend(message);
         }
         conn_sel.wakeup();
     }
 
+    boolean stop = false;
+
+    public void stopIt() {
+        stop = true;
+        conn_sel.wakeup();
+    }
 }
