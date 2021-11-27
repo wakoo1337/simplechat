@@ -24,7 +24,7 @@ public final class SimpleChat extends Application {
         });
         main_stage = stage;
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(this.getClass().getResource("MainWindow.fxml"));
+        loader.setLocation(this.getClass().getResource("/com/wakoo/simplechat/MainWindow.fxml"));
         try {
             Parent rootLayout = loader.load();
             Scene scene = new Scene(rootLayout);

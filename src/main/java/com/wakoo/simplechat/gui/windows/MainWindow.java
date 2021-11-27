@@ -34,7 +34,7 @@ public final class MainWindow implements Initializable {
         event.consume();
         Stage connect_stage = new Stage();
         FXMLLoader loader = new FXMLLoader();
-        URL fxml_url = this.getClass().getResource("ConnectWindow.fxml");
+        URL fxml_url = this.getClass().getResource("/com/wakoo/simplechat/ConnectWindow.fxml");
         loader.setLocation(fxml_url);
         try {
             GridPane rootLayout = loader.load();
@@ -77,7 +77,7 @@ public final class MainWindow implements Initializable {
         event.consume();
         Stage settings_stage = new Stage();
         FXMLLoader loader = new FXMLLoader();
-        URL fxml_url = this.getClass().getResource("SettingsWindow.fxml");
+        URL fxml_url = this.getClass().getResource("/com/wakoo/simplechat/SettingsWindow.fxml");
         loader.setLocation(fxml_url);
         try {
             GridPane rootLayout = loader.load();
