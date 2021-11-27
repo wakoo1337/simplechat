@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 public final class NetworkingProcessor implements Runnable {
     public static final NetworkingProcessor SINGLETON = new NetworkingProcessor();
     private static Selector conn_sel;
+    private static Thread thread;
 
     private NetworkingProcessor() {
         try {
@@ -28,7 +29,8 @@ public final class NetworkingProcessor implements Runnable {
         } catch (IOException ioexcp) {
             err_disp.displayMessage(ioexcp, "Невозможно создать селектор");
         }
-        (new Thread(this, "Поток обработки сети")).start();
+        thread = new Thread(this, "Поток обработки сети");
+        thread.start();
     }
 
     @Override
@@ -106,7 +108,7 @@ public final class NetworkingProcessor implements Runnable {
                 srv_conn = SocketChannel.open();
                 srv_conn.connect(new InetSocketAddress(address, port));
                 srv_conn.configureBlocking(false);
-                synchronized (cl_conn) {
+                synchronized (this) {
                     srv_key = srv_conn.register(conn_sel, SelectionKey.OP_READ);
                     cl_conn = new ClientConnection(srv_key);
                     srv_key.attach(cl_conn);
@@ -119,7 +121,7 @@ public final class NetworkingProcessor implements Runnable {
 
         public void disconnectServer() throws IOException {
             if (connected) {
-                synchronized (cl_conn) {
+                synchronized (this) {
                     srv_key.cancel();
                     srv_conn.close();
                     conn_sel.wakeup();
@@ -142,6 +144,11 @@ public final class NetworkingProcessor implements Runnable {
         stop_begin = true;
         Message leave_notify = new LeaveGenerator();
         sendTo(leave_notify, true);
+        try {
+            thread.join();
+        } catch (InterruptedException ignored) {
+
+        }
     }
 
     private void iterateConnections(Consumer<ClientConnection> consumer, boolean server) {
@@ -158,4 +165,5 @@ public final class NetworkingProcessor implements Runnable {
             conn.queueMsgSend(msg);
         }, server);
     }
+
 }
