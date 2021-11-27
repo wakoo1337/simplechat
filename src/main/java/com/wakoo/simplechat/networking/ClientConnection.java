@@ -33,18 +33,17 @@ public final class ClientConnection implements AutoCloseable {
     }
 
     public void processInData() throws IOException, ProtocolException, ReflectiveOperationException {
-        if (in_hdr.hasRemaining()) {
-            channel.read(in_hdr);
-            if (!in_hdr.hasRemaining()) {
-                in_hdr.flip();
-                final int msg_magic = in_hdr.getInt();
-                if (msg_magic != MessageTypes.magic) throw new ProtocolException("Неверное магическое число");
-                final int msg_length = in_hdr.getInt();
-                if (msg_length <= 0) throw new ProtocolException("Длина сообщения меньше или равна нулю");
-                createInMsg(msg_length);
-            }
+        synchronized (this) {
+            channel.read(in_hdr.hasRemaining() ? in_hdr : in_msg);
+        }
+        if (!in_hdr.hasRemaining()) {
+            in_hdr.flip();
+            final int msg_magic = in_hdr.getInt();
+            if (msg_magic != MessageTypes.magic) throw new ProtocolException("Неверное магическое число");
+            final int msg_length = in_hdr.getInt();
+            if (msg_length <= 0) throw new ProtocolException("Длина сообщения меньше или равна нулю");
+            createInMsg(msg_length);
         } else {
-            channel.read(in_msg);
             if (!in_msg.hasRemaining()) {
                 in_msg.flip();
                 try {
@@ -85,14 +84,14 @@ public final class ClientConnection implements AutoCloseable {
     }
 
     public void queueDataWrite(final List<ByteBuffer> data) {
-        synchronized (key) {
+        synchronized (this) {
             sendqueue.addAll(data);
         }
         key.interestOpsOr(SelectionKey.OP_WRITE);
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         if (key.isValid()) key.cancel();
         channel.close();
     }
@@ -117,4 +116,7 @@ public final class ClientConnection implements AutoCloseable {
         }
     }
 
+    public boolean isSendQueueEmpty() {
+        return sendqueue.isEmpty();
+    }
 }

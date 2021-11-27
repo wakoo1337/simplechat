@@ -1,7 +1,6 @@
 package com.wakoo.simplechat.gui.windows;
 
 import com.wakoo.simplechat.ProfileCatalog;
-import com.wakoo.simplechat.SimpleChat;
 import com.wakoo.simplechat.displays.ErrorDisplay;
 import com.wakoo.simplechat.displays.MsgDisplay;
 import com.wakoo.simplechat.networking.NetworkingProcessor;

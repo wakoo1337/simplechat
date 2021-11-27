@@ -7,7 +7,7 @@ public class LeaveGenerator extends MessageGenerator {
         return "<<<";
     }
 
-    LeaveGenerator() {
+    public LeaveGenerator() {
         super(MessageTypes.MessageLeave);
         finish();
     }

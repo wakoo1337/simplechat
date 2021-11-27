@@ -6,6 +6,7 @@ import com.wakoo.simplechat.displays.MsgDisplay;
 import com.wakoo.simplechat.gui.ConnectDisconnectItems;
 import com.wakoo.simplechat.messages.Message;
 import com.wakoo.simplechat.messages.generators.EnterGenerator;
+import com.wakoo.simplechat.messages.generators.LeaveGenerator;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -15,12 +16,11 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public final class NetworkingProcessor implements Runnable {
     public static final NetworkingProcessor SINGLETON = new NetworkingProcessor();
     private static Selector conn_sel;
-
-    private static final Object sel_sync = new Object();
 
     private NetworkingProcessor() {
         try {
@@ -38,9 +38,10 @@ public final class NetworkingProcessor implements Runnable {
             conn_listener.socket().setReuseAddress(true);
             conn_listener.configureBlocking(false);
             SelectionKey conn_key = conn_listener.register(conn_sel, SelectionKey.OP_ACCEPT);
-            while (!stop) {
+            while (true) {
                 conn_sel.select();
-                synchronized (sel_sync) {
+                boolean areSendQueuesEmpty = true;
+                synchronized (this) {
                     Set<SelectionKey> selected = conn_sel.selectedKeys();
                     for (SelectionKey key : selected) {
                         if (key.equals(conn_key)) {
@@ -62,6 +63,7 @@ public final class NetworkingProcessor implements Runnable {
                                     if (key.isWritable()) {
                                         connection.writeOutData();
                                     }
+                                    areSendQueuesEmpty &= connection.isSendQueueEmpty();
                                 } else {
                                     key.cancel();
                                     key.channel().close();
@@ -82,10 +84,9 @@ public final class NetworkingProcessor implements Runnable {
                         }
                     }
                 }
+                if (stop_begin && areSendQueuesEmpty) break;
             }
-            for (SelectionKey key : conn_sel.keys()) {
-                key.channel().close();
-            }
+            // Соединения не закрываем, операционка сделает это за нас
         } catch (IOException ioexcp) {
             err_disp.displayMessage(ioexcp, "Проблемы с ожиданием соединения");
         }
@@ -105,21 +106,21 @@ public final class NetworkingProcessor implements Runnable {
                 srv_conn = SocketChannel.open();
                 srv_conn.connect(new InetSocketAddress(address, port));
                 srv_conn.configureBlocking(false);
-                synchronized (sel_sync) {
+                synchronized (this) {
                     srv_key = srv_conn.register(conn_sel, SelectionKey.OP_READ);
                     cl_conn = new ClientConnection(srv_key);
                     srv_key.attach(cl_conn);
                     conn_sel.wakeup();
                 }
-                connected = true;
-                ConnectDisconnectItems.SINGLETON.lockConnectDisconnect(true);
                 cl_conn.queueMsgSend(new EnterGenerator());
+                connected = true;
+                ConnectDisconnectItems.SINGLETON.lockConnectDisconnect();
             }
         }
 
         public void disconnectServer() throws IOException {
             if (connected) {
-                synchronized (sel_sync) {
+                synchronized (this) {
                     srv_key.cancel();
                     srv_conn.close();
                     conn_sel.wakeup();
@@ -127,34 +128,38 @@ public final class NetworkingProcessor implements Runnable {
                 srv_conn = null;
                 srv_key = null;
                 connected = false;
-                ConnectDisconnectItems.SINGLETON.lockConnectDisconnect(false);
+                ConnectDisconnectItems.SINGLETON.lockConnectDisconnect();
             }
         }
 
-        public boolean getConnected() {
+        public boolean isConnected() {
             return connected;
         }
-
-        private final MsgDisplay err_disp = new ErrorDisplay("Ошибка сети", "Ошибка при соединении с вышестоящим пользователем");
     }
 
-    public void sendToAll(Message message) {
-        sendToAllButServer(message);
-        if (ServerConnection.SINGLETON.cl_conn != null) ServerConnection.SINGLETON.cl_conn.queueMsgSend(message);
-    }
-
-    public void sendToAllButServer(Message message) {
-        for (SelectionKey key : conn_sel.keys()) {
-            if ((!key.equals(ServerConnection.SINGLETON.srv_key)) && (key.attachment() != null))
-                ((ClientConnection) key.attachment()).queueMsgSend(message);
-        }
-        conn_sel.wakeup();
-    }
-
-    boolean stop = false;
+    boolean stop_begin = false;
 
     public void stopIt() {
-        stop = true;
+        stop_begin = true;
+        Message leave_notify = new LeaveGenerator();
+        iterateConnections((ClientConnection conn) -> {
+            conn.queueMsgSend(leave_notify);
+        }, true);
         conn_sel.wakeup();
+    }
+
+    private void iterateConnections(Consumer<ClientConnection> consumer, boolean server) {
+        for (SelectionKey key : conn_sel.keys()) {
+            ClientConnection ck = (ClientConnection) key.attachment();
+            if (((!key.equals(ServerConnection.SINGLETON.srv_key)) || server) && (ck != null)) {
+                consumer.accept(ck);
+            }
+        }
+    }
+
+    public void sendToAll(Message msg) {
+        iterateConnections((ClientConnection conn) -> {
+            conn.queueMsgSend(msg);
+        }, true);
     }
 }

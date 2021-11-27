@@ -60,6 +60,7 @@ public final class MainWindow implements Initializable {
     @FXML
     private void menuActionExit(ActionEvent event) {
         event.consume();
+        NetworkingProcessor.SINGLETON.stopIt();
         SimpleChat.main_stage.close();
     }
 
@@ -100,7 +101,7 @@ public final class MainWindow implements Initializable {
         ChatBox.SINGLETON.addMessage("Ожидается подключение к порту " + ProfileCatalog.SINGLETON.getListenPort(), new InfoGenerator());
         ConnectDisconnectItems.SINGLETON.setConnectMenuItem(connectMenuItem);
         ConnectDisconnectItems.SINGLETON.setDisconnectMenuItem(disconnectMenuItem);
-        ConnectDisconnectItems.SINGLETON.lockConnectDisconnect(false);
+        ConnectDisconnectItems.SINGLETON.lockConnectDisconnect();
     }
 
     @FXML

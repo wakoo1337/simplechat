@@ -31,7 +31,7 @@ public final class SimpleChat extends Application {
             stage.setScene(scene);
             stage.show();
         } catch (IOException ioexcp) {
-            MsgDisplay err = new ErrorDisplay("Ошибка при загрузке главного окна");
+            MsgDisplay err = new ErrorDisplay("Ошибка главного окна");
             err.displayMessage(ioexcp, "Невозможно загрузить FXML-файл главного окна");
         }
     }

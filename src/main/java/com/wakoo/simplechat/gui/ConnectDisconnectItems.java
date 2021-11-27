@@ -1,5 +1,6 @@
 package com.wakoo.simplechat.gui;
 
+import com.wakoo.simplechat.networking.NetworkingProcessor;
 import javafx.scene.control.MenuItem;
 
 public final class ConnectDisconnectItems {
@@ -24,8 +25,9 @@ public final class ConnectDisconnectItems {
         return disconnectMenuItem;
     }
 
-    public void lockConnectDisconnect(boolean connected) {
-        connectMenuItem.setDisable(connected);
-        disconnectMenuItem.setDisable(!connected);
+    public void lockConnectDisconnect() {
+        boolean status = NetworkingProcessor.ServerConnection.SINGLETON.isConnected();
+        connectMenuItem.setDisable(status);
+        disconnectMenuItem.setDisable(!status);
     }
 }
