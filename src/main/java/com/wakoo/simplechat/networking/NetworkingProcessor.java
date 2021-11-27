@@ -106,11 +106,10 @@ public final class NetworkingProcessor implements Runnable {
                 srv_conn = SocketChannel.open();
                 srv_conn.connect(new InetSocketAddress(address, port));
                 srv_conn.configureBlocking(false);
-                synchronized (this) {
+                synchronized (cl_conn) {
                     srv_key = srv_conn.register(conn_sel, SelectionKey.OP_READ);
                     cl_conn = new ClientConnection(srv_key);
                     srv_key.attach(cl_conn);
-                    conn_sel.wakeup();
                 }
                 cl_conn.queueMsgSend(new EnterGenerator());
                 connected = true;
@@ -120,7 +119,7 @@ public final class NetworkingProcessor implements Runnable {
 
         public void disconnectServer() throws IOException {
             if (connected) {
-                synchronized (this) {
+                synchronized (cl_conn) {
                     srv_key.cancel();
                     srv_conn.close();
                     conn_sel.wakeup();
@@ -142,10 +141,7 @@ public final class NetworkingProcessor implements Runnable {
     public void stopIt() {
         stop_begin = true;
         Message leave_notify = new LeaveGenerator();
-        iterateConnections((ClientConnection conn) -> {
-            conn.queueMsgSend(leave_notify);
-        }, true);
-        conn_sel.wakeup();
+        sendTo(leave_notify, true);
     }
 
     private void iterateConnections(Consumer<ClientConnection> consumer, boolean server) {
@@ -157,9 +153,9 @@ public final class NetworkingProcessor implements Runnable {
         }
     }
 
-    public void sendToAll(Message msg) {
+    public void sendTo(Message msg, boolean server) {
         iterateConnections((ClientConnection conn) -> {
             conn.queueMsgSend(msg);
-        }, true);
+        }, server);
     }
 }

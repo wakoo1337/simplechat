@@ -33,9 +33,13 @@ public final class ClientConnection implements AutoCloseable {
     }
 
     public void processInData() throws IOException, ProtocolException, ReflectiveOperationException {
-        synchronized (this) {
-            channel.read(in_hdr.hasRemaining() ? in_hdr : in_msg);
-        }
+        // Тут надо действовать в зависимости от того, существует ли тело сообщения, или нет
+        if (in_msg == null) readHeader();
+        else readMessage();
+    }
+
+    private void readHeader() throws IOException,ProtocolException {
+        channel.read(in_hdr);
         if (!in_hdr.hasRemaining()) {
             in_hdr.flip();
             final int msg_magic = in_hdr.getInt();
@@ -43,26 +47,30 @@ public final class ClientConnection implements AutoCloseable {
             final int msg_length = in_hdr.getInt();
             if (msg_length <= 0) throw new ProtocolException("Длина сообщения меньше или равна нулю");
             createInMsg(msg_length);
-        } else {
-            if (!in_msg.hasRemaining()) {
-                in_msg.flip();
-                try {
-                    byte[] sign = new byte[256];
-                    in_msg.get(sign);
-                    ByteBuffer check_it = in_msg.asReadOnlyBuffer();
-                    byte[] okey = new byte[294];
-                    in_msg.get(okey);
-                    final int type = in_msg.getInt();
-                    Class<MessageProcessor> msgproc = types.get(type);
-                    if (msgproc != null) {
-                        Constructor<MessageProcessor> c = msgproc.getConstructor(InetSocketAddress.class, byte[].class, byte[].class, ByteBuffer.class, ByteBuffer.class);
-                        c.newInstance(channel.getRemoteAddress(), okey, sign, in_msg, check_it);
-                    }
-                    in_msg = null;
-                    in_hdr.clear();
-                } catch (BufferUnderflowException buexcp) {
-                    throw new ProtocolException("В сообщении отсутствуют цифровая подпись, открытый ключ, и/или длина", buexcp);
+        }
+    }
+
+    private void readMessage() throws IOException,ProtocolException,ReflectiveOperationException {
+        channel.read(in_msg);
+        if (!in_msg.hasRemaining()) {
+            in_msg.flip();
+            try {
+                byte[] sign = new byte[256];
+                in_msg.get(sign);
+                ByteBuffer check_it = in_msg.asReadOnlyBuffer();
+                byte[] okey = new byte[294];
+                in_msg.get(okey);
+                final int type = in_msg.getInt();
+                Class<MessageProcessor> msgproc = types.get(type);
+                if (msgproc != null) {
+                    Constructor<MessageProcessor> c = msgproc.getConstructor(InetSocketAddress.class, byte[].class, byte[].class, ByteBuffer.class, ByteBuffer.class);
+                    c.newInstance(channel.getRemoteAddress(), okey, sign, in_msg, check_it);
                 }
+            } catch (BufferUnderflowException buexcp) {
+                throw new ProtocolException("В сообщении отсутствуют цифровая подпись, открытый ключ, и/или длина", buexcp);
+            } finally {
+                in_msg = null;
+                in_hdr.clear();
             }
         }
     }
@@ -88,6 +96,7 @@ public final class ClientConnection implements AutoCloseable {
             sendqueue.addAll(data);
         }
         key.interestOpsOr(SelectionKey.OP_WRITE);
+        key.selector().wakeup();
     }
 
     @Override

@@ -107,7 +107,7 @@ public final class MainWindow implements Initializable {
     @FXML
     private void buttonActionSend(ActionEvent event) {
         TextMessage msggen = new TextGenerator(msgField.getText());
-        NetworkingProcessor.SINGLETON.sendToAll(msggen);
+        NetworkingProcessor.SINGLETON.sendTo(msggen, true);
         ChatBox.SINGLETON.addMessage(msggen.getText(), msggen);
     }
 
