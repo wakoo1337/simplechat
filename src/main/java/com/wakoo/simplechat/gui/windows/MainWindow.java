@@ -7,6 +7,7 @@ import com.wakoo.simplechat.displays.InfoDisplay;
 import com.wakoo.simplechat.displays.MsgDisplay;
 import com.wakoo.simplechat.gui.ChatBox;
 import com.wakoo.simplechat.gui.ConnectDisconnectItems;
+import com.wakoo.simplechat.gui.UsersBox;
 import com.wakoo.simplechat.messages.TextMessage;
 import com.wakoo.simplechat.messages.generators.InfoGenerator;
 import com.wakoo.simplechat.messages.generators.MessageGenerator;
@@ -17,6 +18,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -97,18 +99,19 @@ public final class MainWindow implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         ChatBox.SINGLETON.setArea(chatTextArea);
-        ChatBox.SINGLETON.addMessage("SimpleChat -- Программа для курсовой работы", new InfoGenerator());
-        ChatBox.SINGLETON.addMessage("Ожидается подключение к порту " + ProfileCatalog.SINGLETON.getListenPort(), new InfoGenerator());
+        ChatBox.SINGLETON.addMessage(new InfoGenerator("Программа для курсовой работы"));
+        ChatBox.SINGLETON.addMessage(new InfoGenerator("Ожидается подключение к порту " + ProfileCatalog.SINGLETON.getListenPort()));
         ConnectDisconnectItems.SINGLETON.setConnectMenuItem(connectMenuItem);
         ConnectDisconnectItems.SINGLETON.setDisconnectMenuItem(disconnectMenuItem);
         ConnectDisconnectItems.SINGLETON.lockConnectDisconnect();
+        UsersBox.SINGLETON.setListView(usersListView);
     }
 
     @FXML
     private void buttonActionSend(ActionEvent event) {
         TextMessage msggen = new TextGenerator(msgField.getText());
         NetworkingProcessor.SINGLETON.sendTo(msggen, true);
-        ChatBox.SINGLETON.addMessage(msggen.getText(), msggen);
+        ChatBox.SINGLETON.addMessage(msggen);
     }
 
     @FXML
@@ -118,4 +121,7 @@ public final class MainWindow implements Initializable {
     private MenuItem connectMenuItem, disconnectMenuItem;
 
     MsgDisplay connerr_disp = new ErrorDisplay("Ошибка при установке или разрыве соединения с сервером");
+
+    @FXML
+    private ListView<String> usersListView;
 }

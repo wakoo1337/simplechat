@@ -1,17 +1,14 @@
 package com.wakoo.simplechat.messages.processors;
 
-import com.wakoo.simplechat.gui.ChatBox;
+import com.wakoo.simplechat.gui.UsersBox;
+import com.wakoo.simplechat.messages.msgs.EnterMsg;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-public final class EnterProcessor extends MessageProcessor {
-    public String getMarker() {
-        return ">>>";
-    }
-
-    public EnterProcessor(InetSocketAddress addr, byte[] okey, byte[] sign, ByteBuffer remain, ByteBuffer check_it) {
-        super(addr, okey, sign, remain, check_it);
-        ChatBox.SINGLETON.addMessage("В чат зашёл " + nickname, this);
+public final class EnterProcessor extends MessageProcessor implements EnterMsg {
+    public EnterProcessor(InetSocketAddress addr, byte[] okey, byte[] sign, ByteBuffer remain) {
+        super(addr, okey, sign, remain);
+        UsersBox.SINGLETON.addUser(getNickname());
     }
 }

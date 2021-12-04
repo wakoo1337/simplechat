@@ -15,7 +15,7 @@ public final class ChatBox {
         this.area = area;
     }
 
-    public void addMessage(final String msg, final Message msgproc) {
+    public void addMessage(final Message msgproc) {
         Platform.runLater(() -> {
             sb.append(msgproc.getMarker());
             sb.append(" ");
@@ -23,7 +23,7 @@ public final class ChatBox {
             sb.append(" [");
             sb.append(msgproc.getSignOk() ? "\uD83D\uDD12" : "\uD83D\uDD13");
             sb.append("] ");
-            sb.append(msg);
+            sb.append(msgproc.getVisibleText());
             sb.append("\n");
             area.setText(sb.toString());
         });

@@ -55,7 +55,7 @@
       <VBox GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
          <children>
             <Label text="Список пользователей" />
-            <ListView VBox.vgrow="ALWAYS" />
+            <ListView fx:id="usersListView" VBox.vgrow="ALWAYS" />
          </children>
       </VBox>
       <VBox GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">

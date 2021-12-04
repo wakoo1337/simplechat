@@ -98,4 +98,10 @@ public abstract class MessageGenerator implements Message {
         header.putInt(acc);
         header.flip();
     }
+
+    public String getNickname() {
+        return ProfileCatalog.SINGLETON.getNickname();
+    }
+
+    public boolean getSignOk() {return true;}
 }

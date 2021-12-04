@@ -86,7 +86,10 @@ public final class NetworkingProcessor implements Runnable {
                         }
                     }
                 }
-                if (stop_begin && areSendQueuesEmpty) break;
+                if (stop_begin) {
+                    if (conn_key.isValid()) conn_key.cancel();
+                    if (areSendQueuesEmpty) break;
+                }
             }
             // Соединения не закрываем, операционка сделает это за нас
         } catch (IOException ioexcp) {
@@ -141,13 +144,18 @@ public final class NetworkingProcessor implements Runnable {
     boolean stop_begin = false;
 
     public void stopIt() {
+
         stop_begin = true;
         Message leave_notify = new LeaveGenerator();
         sendTo(leave_notify, true);
-        try {
-            thread.join();
-        } catch (InterruptedException ignored) {
-
+        boolean joined = false;
+        while (!joined) {
+            try {
+                thread.join();
+                joined = true;
+            } catch (InterruptedException ignored) {
+                continue;
+            }
         }
     }
 

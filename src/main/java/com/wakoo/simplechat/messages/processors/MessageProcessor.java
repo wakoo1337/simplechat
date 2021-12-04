@@ -21,11 +21,11 @@ public abstract class MessageProcessor implements Message {
     protected PublicKey okey;
     protected String nickname;
     protected ByteBuffer remain;
-    protected boolean sign_ok;
+    protected boolean sign_ok = false;
 
     public String marker = "";
 
-    public MessageProcessor(InetSocketAddress party, final byte[] okey_arr, final byte[] sign_arr, ByteBuffer remain_in, ByteBuffer check_it) {
+    public MessageProcessor(InetSocketAddress party, final byte[] okey_arr, final byte[] sign_arr, ByteBuffer remain_in) {
         remain = remain_in;
         nickname = getString();
         X509EncodedKeySpec x509 = new X509EncodedKeySpec(okey_arr);
@@ -34,8 +34,10 @@ public abstract class MessageProcessor implements Message {
             try {
                 okey = kf.generatePublic(x509);
                 sign = Signature.getInstance("SHA256withRSA");
-                sign.initVerify(this.okey);
-                sign.update(check_it);
+                sign.initVerify(okey);
+                remain_in.mark();
+                sign.update(remain_in);
+                remain_in.reset();
                 sign_ok = sign.verify(sign_arr) && ProfileCatalog.OpenKeyStorage.SINGLETON.checkNicknameKeyMapping(nickname, okey);
             } catch (InvalidKeySpecException invkeyspecexcp) {
                 disp.displayMessage(invkeyspecexcp, "Не получается сгенерировать открытый ключ");
@@ -72,4 +74,6 @@ public abstract class MessageProcessor implements Message {
         bba[1] = remain.asReadOnlyBuffer();
         return Arrays.asList(bba);
     }
+
+    public String getNickname() {return nickname;}
 }

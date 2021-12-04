@@ -8,7 +8,6 @@ import com.wakoo.simplechat.messages.MessageTypes;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -38,7 +37,7 @@ public final class ClientConnection implements AutoCloseable {
         else readMessage();
     }
 
-    private void readHeader() throws IOException,ProtocolException {
+    private void readHeader() throws IOException,ProtocolException,ReflectiveOperationException {
         channel.read(in_hdr);
         if (!in_hdr.hasRemaining()) {
             in_hdr.flip();
@@ -47,6 +46,7 @@ public final class ClientConnection implements AutoCloseable {
             final int msg_length = in_hdr.getInt();
             if (msg_length <= 0) throw new ProtocolException("Длина сообщения меньше или равна нулю");
             createInMsg(msg_length);
+            readMessage();
         }
     }
 
@@ -57,14 +57,15 @@ public final class ClientConnection implements AutoCloseable {
             try {
                 byte[] sign = new byte[256];
                 in_msg.get(sign);
-                ByteBuffer check_it = in_msg.asReadOnlyBuffer();
                 byte[] okey = new byte[294];
+                in_msg.mark();
                 in_msg.get(okey);
                 final int type = in_msg.getInt();
+                in_msg.reset();
                 Class<MessageProcessor> msgproc = types.get(type);
                 if (msgproc != null) {
-                    Constructor<MessageProcessor> c = msgproc.getConstructor(InetSocketAddress.class, byte[].class, byte[].class, ByteBuffer.class, ByteBuffer.class);
-                    c.newInstance(channel.getRemoteAddress(), okey, sign, in_msg, check_it);
+                    Constructor<MessageProcessor> c = msgproc.getConstructor(InetSocketAddress.class, byte[].class, byte[].class, ByteBuffer.class);
+                    c.newInstance(channel.getRemoteAddress(), okey, sign, in_msg);
                 }
             } catch (BufferUnderflowException buexcp) {
                 throw new ProtocolException("В сообщении отсутствуют цифровая подпись, открытый ключ, и/или длина", buexcp);
@@ -119,9 +120,9 @@ public final class ClientConnection implements AutoCloseable {
             types.put(MessageTypes.MessageLeave, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.LeaveProcessor"));
             types.put(MessageTypes.MessageText, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.TextProcessor"));
             types.put(MessageTypes.MessageNicknameChange, null);
-        } catch (ClassNotFoundException noclassexcp) {
+        } catch (ReflectiveOperationException refexcp) {
             MsgDisplay err_disp = new ErrorDisplay("Ошибка рефлексии");
-            err_disp.displayMessage(noclassexcp, "Невозможно получить доступ к классам-обработчикам сообщений");
+            err_disp.displayMessage(refexcp, "Невозможно получить доступ к классам-обработчикам сообщений");
         }
     }
 
