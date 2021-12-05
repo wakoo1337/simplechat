@@ -7,6 +7,7 @@ import com.wakoo.simplechat.gui.ConnectDisconnectItems;
 import com.wakoo.simplechat.messages.Message;
 import com.wakoo.simplechat.messages.generators.EnterGenerator;
 import com.wakoo.simplechat.messages.generators.LeaveGenerator;
+import com.wakoo.simplechat.messages.generators.UsersListTransferGenerator;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -52,7 +53,9 @@ public final class NetworkingProcessor implements Runnable {
                                 sock.configureBlocking(false);
                                 SelectionKey new_key;
                                 new_key = sock.register(conn_sel, SelectionKey.OP_READ);
-                                new_key.attach(new ClientConnection(new_key));
+                                ClientConnection conn = new ClientConnection(new_key);
+                                new_key.attach(conn);
+                                conn.queueMsgSend(new UsersListTransferGenerator(true));
                             }
                         } else {
                             ClientConnection connection = (ClientConnection) key.attachment();

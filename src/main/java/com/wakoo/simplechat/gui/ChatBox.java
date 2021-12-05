@@ -20,9 +20,7 @@ public final class ChatBox {
             sb.append(msgproc.getMarker());
             sb.append(" ");
             sb.append((new Date()).toString());
-            sb.append(" [");
-            sb.append(msgproc.getSignOk() ? "\uD83D\uDD12" : "\uD83D\uDD13");
-            sb.append("] ");
+            sb.append(" ");
             sb.append(msgproc.getVisibleText());
             sb.append("\n");
             area.setText(sb.toString());

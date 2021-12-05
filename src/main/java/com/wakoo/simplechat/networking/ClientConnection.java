@@ -120,6 +120,7 @@ public final class ClientConnection implements AutoCloseable {
             types.put(MessageTypes.MessageLeave, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.LeaveProcessor"));
             types.put(MessageTypes.MessageText, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.TextProcessor"));
             types.put(MessageTypes.MessageNicknameChange, null);
+            types.put(MessageTypes.MessageUsersListTransfer, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.UsersListTransferProcessor"));
         } catch (ReflectiveOperationException refexcp) {
             MsgDisplay err_disp = new ErrorDisplay("Ошибка рефлексии");
             err_disp.displayMessage(refexcp, "Невозможно получить доступ к классам-обработчикам сообщений");

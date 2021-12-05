@@ -20,8 +20,8 @@ public class InfoGenerator implements Message {
         return "!!!";
     }
 
-    public boolean getSignOk() {
-        return true;
+    public String getSignOk() {
+        return "";
     }
 
     public String getNickname() {return "SimpleChat";}

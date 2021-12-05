@@ -62,10 +62,6 @@ public abstract class MessageProcessor implements Message {
         return StandardCharsets.UTF_8.decode(bb).toString();
     }
 
-    public boolean getSignOk() {
-        return sign_ok;
-    }
-
     public List<ByteBuffer> export() {
         ByteBuffer[] bba = new ByteBuffer[2];
         bba[0] = ByteBuffer.allocate(8);
@@ -77,4 +73,12 @@ public abstract class MessageProcessor implements Message {
     }
 
     public String getNickname() {return nickname;}
+
+    public String getSignOk() {
+        return " [" + (sign_ok ? "\uD83D\uDD12" : "\uD83D\uDD13") + "] ";
+    }
+
+    protected int getInt() {
+        return remain.getInt();
+    }
 }

@@ -8,7 +8,7 @@ public interface Message {
 
     String getMarker();
 
-    boolean getSignOk();
+    String getSignOk();
     String getNickname();
 
     String getVisibleText();

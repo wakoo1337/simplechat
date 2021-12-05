@@ -103,5 +103,5 @@ public abstract class MessageGenerator implements Message {
         return ProfileCatalog.SINGLETON.getNickname();
     }
 
-    public boolean getSignOk() {return true;}
+    public String getSignOk() {return " [\uD83D\uDD12] ";}
 }
