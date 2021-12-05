@@ -22,12 +22,22 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 public final class MainWindow implements Initializable {
@@ -124,4 +134,31 @@ public final class MainWindow implements Initializable {
 
     @FXML
     private ListView<String> usersListView;
+
+    @FXML
+    private void copyAllAction(ActionEvent event) {
+        ClipboardContent cc = new ClipboardContent();
+        cc.putString(ChatBox.SINGLETON.toString());
+        Clipboard.getSystemClipboard().setContent(cc);
+    }
+
+    @FXML
+    private void saveToFileAction(ActionEvent event) {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Сохранение истории чата");
+        fc.setInitialFileName("Экспорт истории от " + ((new Date()).toString()));
+        FileChooser.ExtensionFilter sel_filter = new FileChooser.ExtensionFilter("Текстовые документы", "*.txt");
+        fc.getExtensionFilters().addAll(
+                sel_filter,
+                new FileChooser.ExtensionFilter("Все файлы", "*.*"));
+        fc.setSelectedExtensionFilter(sel_filter);
+        File selected = fc.showSaveDialog(SimpleChat.main_stage);
+        if (selected != null) {
+            try (BufferedWriter bwr = Files.newBufferedWriter(selected.toPath(), StandardCharsets.UTF_8, new OpenOption[]{StandardOpenOption.CREATE, StandardOpenOption.WRITE })) {
+                bwr.write(ChatBox.SINGLETON.toString());
+            } catch (IOException ioexcp) {
+                (new ErrorDisplay("Ошибка при сохранении текста")).displayMessage(ioexcp, "Невозможно сохранить файл с историей чата");
+            }
+        }
+    }
 }

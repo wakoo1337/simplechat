@@ -26,4 +26,8 @@ public final class ChatBox {
             area.setText(sb.toString());
         });
     }
+
+    public String toString() {
+        return sb.toString();
+    }
 }

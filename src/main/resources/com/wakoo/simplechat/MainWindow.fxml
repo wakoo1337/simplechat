@@ -38,9 +38,11 @@
                   <MenuItem mnemonicParsing="false" onAction="#menuActionExit" text="Выход" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
+          <Menu mnemonicParsing="false" text="Правка">
             <items>
-              <MenuItem mnemonicParsing="false" text="Delete" />
+                  <MenuItem onAction="#copyAllAction" mnemonicParsing="false" text="Скопировать всё" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem onAction="#saveToFileAction" mnemonicParsing="false" text="Сохранить содержимое в файл" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Справка">

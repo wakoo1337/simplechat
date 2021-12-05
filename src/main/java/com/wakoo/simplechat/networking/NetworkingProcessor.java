@@ -147,10 +147,10 @@ public final class NetworkingProcessor implements Runnable {
     boolean stop_begin = false;
 
     public void stopIt() {
-
         stop_begin = true;
         Message leave_notify = new LeaveGenerator();
         sendTo(leave_notify, true);
+        conn_sel.wakeup();
         boolean joined = false;
         while (!joined) {
             try {
