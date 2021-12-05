@@ -1,5 +1,6 @@
 package com.wakoo.simplechat.gui;
 
+import javafx.application.Platform;
 import javafx.scene.control.ListView;
 
 import java.util.List;
@@ -13,9 +14,9 @@ public final class UsersBox {
         return lv.getItems();
     }
     public void addUser(String user) {
-        lv.getItems().add(user);
+        Platform.runLater(() -> lv.getItems().add(user));
     }
     public void delUser(String user) {
-        lv.getItems().remove(user);
+        Platform.runLater(() -> lv.getItems().remove(user));
     }
 }
