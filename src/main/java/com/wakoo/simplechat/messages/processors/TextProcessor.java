@@ -5,7 +5,7 @@ import com.wakoo.simplechat.messages.msgs.TextMsg;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-public class TextProcessor extends MessageProcessor implements TextMsg {
+public final class TextProcessor extends MessageProcessor implements TextMsg {
     private final String text;
 
     public TextProcessor(InetSocketAddress party, final byte[] okey_arr, final byte[] sign_arr, ByteBuffer remain_in) {

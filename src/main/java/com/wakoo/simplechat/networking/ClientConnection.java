@@ -3,7 +3,7 @@ package com.wakoo.simplechat.networking;
 import com.wakoo.simplechat.displays.ErrorDisplay;
 import com.wakoo.simplechat.displays.MsgDisplay;
 import com.wakoo.simplechat.messages.Message;
-import com.wakoo.simplechat.messages.processors.MessageProcessor;
+import com.wakoo.simplechat.messages.processors.*;
 import com.wakoo.simplechat.messages.MessageTypes;
 
 import java.io.IOException;

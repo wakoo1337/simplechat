@@ -27,7 +27,6 @@ public abstract class MessageProcessor implements Message {
 
     public MessageProcessor(InetSocketAddress party, final byte[] okey_arr, final byte[] sign_arr, ByteBuffer remain_in) {
         remain = remain_in;
-        nickname = getString();
         X509EncodedKeySpec x509 = new X509EncodedKeySpec(okey_arr);
         try {
             KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -38,7 +37,9 @@ public abstract class MessageProcessor implements Message {
                 remain_in.mark();
                 sign.update(remain_in);
                 remain_in.reset();
+                remain_in.position(remain_in.position() + 298);
                 sign_ok = sign.verify(sign_arr) && ProfileCatalog.OpenKeyStorage.SINGLETON.checkNicknameKeyMapping(nickname, okey);
+                nickname = getString();
             } catch (InvalidKeySpecException invkeyspecexcp) {
                 disp.displayMessage(invkeyspecexcp, "Не получается сгенерировать открытый ключ");
             } catch (InvalidKeyException invkeyexcp) {
