@@ -177,4 +177,9 @@ public final class NetworkingProcessor implements Runnable {
         }, server);
     }
 
+    public void relayMessage(Message msg, InetSocketAddress from) {
+        iterateConnections((ClientConnection conn) -> {
+            if (!from.equals(conn.getRemoteAddress())) conn.queueMsgSend(msg);
+        }, true);
+    }
 }

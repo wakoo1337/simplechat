@@ -7,6 +7,7 @@ import com.wakoo.simplechat.displays.MsgDisplay;
 import com.wakoo.simplechat.messages.Message;
 
 import java.net.InetSocketAddress;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
@@ -54,7 +55,7 @@ public abstract class MessageProcessor implements Message {
 
     protected static final MsgDisplay disp = new ErrorDisplay("Ошибка при разборе сообщения");
 
-    protected String getString() {
+    protected String getString() throws BufferUnderflowException {
         final int len = remain.getInt();
         ByteBuffer bb = ByteBuffer.allocate(len);
         for (int i = 0; i < len; i++) bb.put(remain.get());

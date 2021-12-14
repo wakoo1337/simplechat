@@ -130,4 +130,14 @@ public final class ClientConnection implements AutoCloseable {
     public boolean isSendQueueEmpty() {
         return sendqueue.isEmpty();
     }
+
+    public InetSocketAddress getRemoteAddress() {
+        try {
+            return (InetSocketAddress) channel.getRemoteAddress();
+        } catch (IOException ioexcp) {
+            MsgDisplay err_disp = new ErrorDisplay("Ошибка ввода/вывода");
+            err_disp.displayMessage(ioexcp, "Невозможно получить удалённый адрес");
+            return null;
+        }
+    }
 }

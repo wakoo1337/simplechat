@@ -34,6 +34,7 @@ public final class ConnectWindow implements Initializable {
     }
 
     public void onConnect(ActionEvent event) {
+        event.consume();
         try {
             NetworkingProcessor.ServerConnection.SINGLETON.connectServer(InetAddress.getByName(netAddress.getText()), portSpinner.getValueFactory().getValue());
         } catch (UnknownHostException uhostexcp) {
@@ -44,8 +45,9 @@ public final class ConnectWindow implements Initializable {
     }
 
     public void onCancel(ActionEvent event) {
+        event.consume();
         ((Stage) windowPane.getScene().getWindow()).close();
     }
 
-    MsgDisplay err = new ErrorDisplay("Ошибка при соединении с сервером");
+    private final MsgDisplay err = new ErrorDisplay("Ошибка при соединении с сервером");
 }
