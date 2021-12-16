@@ -34,8 +34,8 @@ public abstract class MessageGenerator implements Message {
                 try {
                     for (ByteBuffer element : data) signer.update(element.asReadOnlyBuffer());
                     signature = ByteBuffer.wrap(signer.sign()); // TODO сделать ключи и подписи произвольной длины
-                    insertInt(signature.limit(), true);
                     data.add(0, signature);
+                    insertInt(signature.limit(), true);
                 } catch (SignatureException sigexcp) {
                     disp.displayMessage(sigexcp, "Невозможно вычислить цифровую подпись");
                 }
