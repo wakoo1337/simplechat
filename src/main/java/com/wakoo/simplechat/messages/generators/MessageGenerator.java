@@ -33,9 +33,8 @@ public abstract class MessageGenerator implements Message {
                 signer.initSign(ProfileCatalog.SINGLETON.getClosedKey());
                 try {
                     for (ByteBuffer element : data) signer.update(element.asReadOnlyBuffer());
-                    signature = ByteBuffer.wrap(signer.sign());
-                    assert (signature.capacity() == 256);
-                    //signature.flip();
+                    signature = ByteBuffer.wrap(signer.sign()); // TODO сделать ключи и подписи произвольной длины
+                    insertInt(signature.limit(), true);
                     data.add(0, signature);
                 } catch (SignatureException sigexcp) {
                     disp.displayMessage(sigexcp, "Невозможно вычислить цифровую подпись");
@@ -90,8 +89,8 @@ public abstract class MessageGenerator implements Message {
 
     protected void finish() {
         ByteBuffer okey_bb = ByteBuffer.wrap(ProfileCatalog.SINGLETON.getOpenKey().getEncoded());
-        //okey_bb.flip();
         data.add(0, okey_bb);
+        insertInt(okey_bb.limit(), true);
         signMessage();
         int acc = 0;
         for (ByteBuffer bb : data) acc += bb.limit();

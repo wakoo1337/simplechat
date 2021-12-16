@@ -55,10 +55,12 @@ public final class ClientConnection implements AutoCloseable {
         if (!in_msg.hasRemaining()) {
             in_msg.flip();
             try {
-                byte[] sign = new byte[256];
+                final int sign_len = in_msg.getInt();
+                byte[] sign = new byte[sign_len];
                 in_msg.get(sign);
-                byte[] okey = new byte[294];
                 in_msg.mark();
+                final int okey_len = in_msg.getInt();
+                byte[] okey = new byte[okey_len];
                 in_msg.get(okey);
                 final int type = in_msg.getInt();
                 in_msg.reset();
@@ -119,7 +121,6 @@ public final class ClientConnection implements AutoCloseable {
             types.put(MessageTypes.MessageEnter, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.EnterProcessor"));
             types.put(MessageTypes.MessageLeave, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.LeaveProcessor"));
             types.put(MessageTypes.MessageText, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.TextProcessor"));
-            types.put(MessageTypes.MessageNicknameChange, null);
             types.put(MessageTypes.MessageUsersListTransfer, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.UsersListTransferProcessor"));
         } catch (ReflectiveOperationException refexcp) {
             MsgDisplay err_disp = new ErrorDisplay("Ошибка рефлексии");
