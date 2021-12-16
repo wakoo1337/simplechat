@@ -42,6 +42,7 @@ public final class ConnectWindow implements Initializable {
         } catch (IOException ioexcp) {
             err.displayMessage(ioexcp, "Ошибка ввода-вывода");
         }
+        ((Stage) windowPane.getScene().getWindow()).close();
     }
 
     public void onCancel(ActionEvent event) {

@@ -26,7 +26,7 @@ public final class ConnectDisconnectItems {
     }
 
     public void lockConnectDisconnect() {
-        boolean status = NetworkingProcessor.ServerConnection.SINGLETON.isConnected();
+        final boolean status = NetworkingProcessor.ServerConnection.SINGLETON.isConnected();
         connectMenuItem.setDisable(status);
         disconnectMenuItem.setDisable(!status);
     }

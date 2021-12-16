@@ -3,9 +3,11 @@ package com.wakoo.simplechat.networking;
 import com.wakoo.simplechat.ProfileCatalog;
 import com.wakoo.simplechat.displays.ErrorDisplay;
 import com.wakoo.simplechat.displays.MsgDisplay;
+import com.wakoo.simplechat.gui.ChatBox;
 import com.wakoo.simplechat.gui.ConnectDisconnectItems;
 import com.wakoo.simplechat.messages.Message;
 import com.wakoo.simplechat.messages.generators.EnterGenerator;
+import com.wakoo.simplechat.messages.generators.InfoGenerator;
 import com.wakoo.simplechat.messages.generators.LeaveGenerator;
 import com.wakoo.simplechat.messages.generators.UsersListTransferGenerator;
 
@@ -76,10 +78,18 @@ public final class NetworkingProcessor implements Runnable {
                                         ServerConnection.SINGLETON.connected = false;
                                 }
                             } catch (IOException ioexcp) {
+                                if (ServerConnection.SINGLETON.srv_key.equals(key)) {
+                                    ServerConnection.SINGLETON.setConnected(false);
+                                    ChatBox.SINGLETON.addMessage(new InfoGenerator("Отключено от сервера"));
+                                }
                                 key.cancel();
                                 channel.close();
                                 err_disp.displayMessage(ioexcp, "Ошибка ввода-вывода на сокете");
                             } catch (ProtocolException protoexcp) {
+                                if (ServerConnection.SINGLETON.srv_key.equals(key)) {
+                                    ServerConnection.SINGLETON.setConnected(false);
+                                    ChatBox.SINGLETON.addMessage(new InfoGenerator("Отключено от сервера"));
+                                }
                                 key.cancel();
                                 channel.close();
                                 err_disp.displayMessage(protoexcp, "Неверно сформированное сообщение на сокете");
@@ -112,7 +122,8 @@ public final class NetworkingProcessor implements Runnable {
         public void connectServer(final InetAddress address, final int port) throws IOException {
             if (!connected) {
                 srv_conn = SocketChannel.open();
-                srv_conn.connect(new InetSocketAddress(address, port));
+                InetSocketAddress isa = new InetSocketAddress(address, port);
+                srv_conn.connect(isa);
                 srv_conn.configureBlocking(false);
                 synchronized (this) {
                     srv_key = srv_conn.register(conn_sel, SelectionKey.OP_READ);
@@ -120,8 +131,8 @@ public final class NetworkingProcessor implements Runnable {
                     srv_key.attach(cl_conn);
                 }
                 cl_conn.queueMsgSend(new EnterGenerator());
-                connected = true;
-                ConnectDisconnectItems.SINGLETON.lockConnectDisconnect();
+                setConnected(true);
+                ChatBox.SINGLETON.addMessage(new InfoGenerator("Подключено к " + isa));
             }
         }
 
@@ -134,13 +145,18 @@ public final class NetworkingProcessor implements Runnable {
                 }
                 srv_conn = null;
                 srv_key = null;
-                connected = false;
-                ConnectDisconnectItems.SINGLETON.lockConnectDisconnect();
+                setConnected(false);
+                ChatBox.SINGLETON.addMessage(new InfoGenerator("Отключено от сервера"));
             }
         }
 
         public boolean isConnected() {
             return connected;
+        }
+
+        public void setConnected(boolean value) {
+            connected = value;
+            ConnectDisconnectItems.SINGLETON.lockConnectDisconnect();
         }
     }
 
