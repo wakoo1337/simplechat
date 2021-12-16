@@ -165,7 +165,7 @@ public final class NetworkingProcessor implements Runnable {
     private void iterateConnections(Consumer<ClientConnection> consumer, boolean server) {
         for (SelectionKey key : conn_sel.keys()) {
             ClientConnection ck = (ClientConnection) key.attachment();
-            if (((!key.equals(ServerConnection.SINGLETON.srv_key)) || server) && (ck != null)) {
+            if ((ck != null) && (server || (!key.equals(ServerConnection.SINGLETON.srv_key)))) {
                 consumer.accept(ck);
             }
         }

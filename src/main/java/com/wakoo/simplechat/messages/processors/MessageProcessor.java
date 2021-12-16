@@ -38,7 +38,7 @@ public abstract class MessageProcessor implements Message {
                 remain_in.mark();
                 sign.update(remain_in);
                 remain_in.reset();
-                remain_in.position(remain_in.position() + okey_arr.length + 4);
+                remain_in.position(remain_in.position() + okey_arr.length + 8);
                 nickname = getString();
                 sign_ok = sign.verify(sign_arr) && ProfileCatalog.OpenKeyStorage.SINGLETON.checkNicknameKeyMapping(nickname, okey);
             } catch (InvalidKeySpecException invkeyspecexcp) {
