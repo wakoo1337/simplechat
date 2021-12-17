@@ -59,7 +59,7 @@ public abstract class MessageGenerator implements Message {
     public ArrayList<ByteBuffer> export() {
         ArrayList<ByteBuffer> out = new ArrayList<ByteBuffer>();
         out.add(header.asReadOnlyBuffer());
-        for (ByteBuffer bb : data) out.add(bb.asReadOnlyBuffer());
+        for (ByteBuffer bb : data) out.add(bb.asReadOnlyBuffer().rewind());
         return out;
     }
 

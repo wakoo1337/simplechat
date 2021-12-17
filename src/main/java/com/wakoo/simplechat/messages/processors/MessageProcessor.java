@@ -72,8 +72,7 @@ public abstract class MessageProcessor implements Message {
         bba[0].putInt(MessageTypes.magic);
         bba[0].putInt(remain.limit());
         bba[0].flip();
-        bba[1] = remain.asReadOnlyBuffer();
-        bba[1].rewind();
+        bba[1] = remain.asReadOnlyBuffer().rewind();
         return Arrays.asList(bba);
     }
 
