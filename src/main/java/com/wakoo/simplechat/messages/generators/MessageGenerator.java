@@ -1,10 +1,10 @@
 package com.wakoo.simplechat.messages.generators;
 
-import com.wakoo.simplechat.*;
+import com.wakoo.simplechat.ProfileCatalog;
 import com.wakoo.simplechat.displays.ErrorDisplay;
 import com.wakoo.simplechat.displays.MsgDisplay;
-import com.wakoo.simplechat.messages.MessageTypes;
 import com.wakoo.simplechat.messages.Message;
+import com.wakoo.simplechat.messages.MessageTypes;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -102,5 +102,7 @@ public abstract class MessageGenerator implements Message {
         return ProfileCatalog.SINGLETON.getNickname();
     }
 
-    public String getSignOk() {return " [\uD83D\uDD12] ";}
+    public String getSignOk() {
+        return " [\uD83D\uDD12] ";
+    }
 }

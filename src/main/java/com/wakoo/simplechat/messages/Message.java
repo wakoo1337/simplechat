@@ -9,6 +9,7 @@ public interface Message {
     String getMarker();
 
     String getSignOk();
+
     String getNickname();
 
     String getVisibleText();

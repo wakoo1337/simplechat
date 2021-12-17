@@ -19,7 +19,7 @@ public final class ChatBox {
         Platform.runLater(() -> {
             sb.append(msgproc.getMarker());
             sb.append(" ");
-            sb.append((new Date()).toString());
+            sb.append((new Date()));
             sb.append(" ");
             sb.append(msgproc.getVisibleText());
             sb.append("\n");

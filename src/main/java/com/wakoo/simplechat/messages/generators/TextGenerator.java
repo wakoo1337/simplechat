@@ -13,5 +13,7 @@ public class TextGenerator extends MessageGenerator implements TextMsg {
         this.text = text;
     }
 
-    public String getValueText() {return text;}
+    public String getValueText() {
+        return text;
+    }
 }

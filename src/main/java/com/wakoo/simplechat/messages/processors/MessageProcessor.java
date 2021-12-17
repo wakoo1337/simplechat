@@ -1,10 +1,11 @@
 package com.wakoo.simplechat.messages.processors;
 
-import com.wakoo.simplechat.messages.MessageTypes;
 import com.wakoo.simplechat.ProfileCatalog;
 import com.wakoo.simplechat.displays.ErrorDisplay;
 import com.wakoo.simplechat.displays.MsgDisplay;
 import com.wakoo.simplechat.messages.Message;
+import com.wakoo.simplechat.messages.MessageTypes;
+import com.wakoo.simplechat.networking.ProtocolException;
 
 import java.net.InetSocketAddress;
 import java.nio.BufferUnderflowException;
@@ -26,7 +27,7 @@ public abstract class MessageProcessor implements Message {
 
     public String marker = "";
 
-    public MessageProcessor(InetSocketAddress party, final byte[] okey_arr, final byte[] sign_arr, ByteBuffer remain_in) {
+    public MessageProcessor(InetSocketAddress party, final byte[] okey_arr, final byte[] sign_arr, ByteBuffer remain_in) throws ProtocolException {
         remain = remain_in;
         X509EncodedKeySpec x509 = new X509EncodedKeySpec(okey_arr);
         try {
@@ -55,8 +56,9 @@ public abstract class MessageProcessor implements Message {
 
     protected static final MsgDisplay disp = new ErrorDisplay("Ошибка при разборе сообщения");
 
-    protected String getString() throws BufferUnderflowException {
+    protected String getString() throws BufferUnderflowException, ProtocolException {
         final int len = remain.getInt();
+        if (len <= 0) throw new ProtocolException("Строка не может иметь отрицательную длину");
         ByteBuffer bb = ByteBuffer.allocate(len);
         for (int i = 0; i < len; i++) bb.put(remain.get());
         bb.flip();
@@ -75,7 +77,9 @@ public abstract class MessageProcessor implements Message {
         return Arrays.asList(bba);
     }
 
-    public String getNickname() {return nickname;}
+    public String getNickname() {
+        return nickname;
+    }
 
     public String getSignOk() {
         return " [" + (sign_ok ? "\uD83D\uDD12" : "\uD83D\uDD13") + "] ";

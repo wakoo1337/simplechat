@@ -3,8 +3,8 @@ package com.wakoo.simplechat.networking;
 import com.wakoo.simplechat.displays.ErrorDisplay;
 import com.wakoo.simplechat.displays.MsgDisplay;
 import com.wakoo.simplechat.messages.Message;
-import com.wakoo.simplechat.messages.processors.*;
 import com.wakoo.simplechat.messages.MessageTypes;
+import com.wakoo.simplechat.messages.processors.MessageProcessor;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -37,7 +37,7 @@ public final class ClientConnection implements AutoCloseable {
         else readMessage();
     }
 
-    private void readHeader() throws IOException,ProtocolException,ReflectiveOperationException {
+    private void readHeader() throws IOException, ProtocolException, ReflectiveOperationException {
         channel.read(in_hdr);
         if (!in_hdr.hasRemaining()) {
             in_hdr.flip();
@@ -50,7 +50,7 @@ public final class ClientConnection implements AutoCloseable {
         }
     }
 
-    private void readMessage() throws IOException,ProtocolException,ReflectiveOperationException {
+    private void readMessage() throws IOException, ProtocolException, ReflectiveOperationException {
         channel.read(in_msg);
         if (!in_msg.hasRemaining()) {
             in_msg.flip();

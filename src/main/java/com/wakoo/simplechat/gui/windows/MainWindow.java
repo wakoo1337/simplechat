@@ -10,7 +10,6 @@ import com.wakoo.simplechat.gui.ConnectDisconnectItems;
 import com.wakoo.simplechat.gui.UsersBox;
 import com.wakoo.simplechat.messages.TextMessage;
 import com.wakoo.simplechat.messages.generators.InfoGenerator;
-import com.wakoo.simplechat.messages.generators.MessageGenerator;
 import com.wakoo.simplechat.messages.generators.TextGenerator;
 import com.wakoo.simplechat.networking.NetworkingProcessor;
 import javafx.event.ActionEvent;
@@ -146,7 +145,7 @@ public final class MainWindow implements Initializable {
     private void saveToFileAction(ActionEvent event) {
         FileChooser fc = new FileChooser();
         fc.setTitle("Сохранение истории чата");
-        fc.setInitialFileName("Экспорт истории от " + ((new Date()).toString()));
+        fc.setInitialFileName("Экспорт истории от " + ((new Date())));
         FileChooser.ExtensionFilter sel_filter = new FileChooser.ExtensionFilter("Текстовые документы", "*.txt");
         fc.getExtensionFilters().addAll(
                 sel_filter,
@@ -154,7 +153,7 @@ public final class MainWindow implements Initializable {
         fc.setSelectedExtensionFilter(sel_filter);
         File selected = fc.showSaveDialog(SimpleChat.main_stage);
         if (selected != null) {
-            try (BufferedWriter bwr = Files.newBufferedWriter(selected.toPath(), StandardCharsets.UTF_8, new OpenOption[]{StandardOpenOption.CREATE, StandardOpenOption.WRITE })) {
+            try (BufferedWriter bwr = Files.newBufferedWriter(selected.toPath(), StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
                 bwr.write(ChatBox.SINGLETON.toString());
             } catch (IOException ioexcp) {
                 (new ErrorDisplay("Ошибка при сохранении текста")).displayMessage(ioexcp, "Невозможно сохранить файл с историей чата");

@@ -7,6 +7,7 @@ public interface EnterMsg extends Message {
     default String getMarker() {
         return ">>>";
     }
+
     default String getVisibleText() {
         return "В чат зашёл " + ProfileCatalog.SINGLETON.getNickname();
     }

@@ -7,6 +7,7 @@ public interface LeaveMsg extends Message {
     default String getMarker() {
         return "<<<";
     }
+
     default String getVisibleText() {
         return "Из чата вышел " + ProfileCatalog.SINGLETON.getNickname();
     }

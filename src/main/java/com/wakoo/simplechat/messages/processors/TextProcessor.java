@@ -3,6 +3,7 @@ package com.wakoo.simplechat.messages.processors;
 import com.wakoo.simplechat.gui.ChatBox;
 import com.wakoo.simplechat.messages.msgs.TextMsg;
 import com.wakoo.simplechat.networking.NetworkingProcessor;
+import com.wakoo.simplechat.networking.ProtocolException;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -10,7 +11,7 @@ import java.nio.ByteBuffer;
 public final class TextProcessor extends MessageProcessor implements TextMsg {
     private final String text;
 
-    public TextProcessor(InetSocketAddress addr, final byte[] okey_arr, final byte[] sign_arr, ByteBuffer remain_in) {
+    public TextProcessor(InetSocketAddress addr, final byte[] okey_arr, final byte[] sign_arr, ByteBuffer remain_in) throws ProtocolException {
         super(addr, okey_arr, sign_arr, remain_in);
         text = getString();
         ChatBox.SINGLETON.addMessage(this);

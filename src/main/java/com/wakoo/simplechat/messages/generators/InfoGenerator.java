@@ -10,7 +10,7 @@ public class InfoGenerator implements Message {
         this.msg = msg;
     }
 
-    private String msg;
+    private final String msg;
 
     public List<ByteBuffer> export() {
         return null;
@@ -24,7 +24,9 @@ public class InfoGenerator implements Message {
         return "";
     }
 
-    public String getNickname() {return "SimpleChat";}
+    public String getNickname() {
+        return "SimpleChat";
+    }
 
     public String getVisibleText() {
         return msg;
