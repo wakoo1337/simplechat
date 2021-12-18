@@ -19,16 +19,17 @@ import java.util.HashMap;
 import java.util.List;
 
 public final class ClientConnection implements AutoCloseable {
-    private ByteBuffer in_hdr;
+    private final ByteBuffer in_hdr;
     private ByteBuffer in_msg;
     private final SocketChannel channel;
     private final SelectionKey key;
     private final ArrayList<ByteBuffer> sendqueue = new ArrayList<>();
+    private final static int hdr_len = 8;
 
     public ClientConnection(SelectionKey sk) {
         channel = (SocketChannel) sk.channel();
         key = sk;
-        createInHdr();
+        in_hdr = allocLEBuffer(hdr_len);
     }
 
     public void processInData() throws IOException, ProtocolException, ReflectiveOperationException {
@@ -45,7 +46,7 @@ public final class ClientConnection implements AutoCloseable {
             if (msg_magic != MessageTypes.magic) throw new ProtocolException("Неверное магическое число");
             final int msg_length = in_hdr.getInt();
             if (msg_length <= 0) throw new ProtocolException("Длина сообщения меньше или равна нулю");
-            createInMsg(msg_length);
+            in_msg = allocLEBuffer(msg_length);
             readMessage();
         }
     }
@@ -78,14 +79,10 @@ public final class ClientConnection implements AutoCloseable {
         }
     }
 
-    private void createInHdr() {
-        in_hdr = ByteBuffer.allocate(8);
-        in_hdr.order(ByteOrder.LITTLE_ENDIAN);
-    }
-
-    private void createInMsg(final int length) {
-        in_msg = ByteBuffer.allocate(length);
-        in_msg.order(ByteOrder.LITTLE_ENDIAN);
+    private ByteBuffer allocLEBuffer(final int length) {
+        ByteBuffer bb = ByteBuffer.allocate(length);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        return bb;
     }
 
     public void writeOutData() throws IOException {

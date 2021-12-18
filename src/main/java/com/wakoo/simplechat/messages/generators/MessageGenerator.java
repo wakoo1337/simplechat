@@ -14,6 +14,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class MessageGenerator implements Message {
     MessageGenerator(final int type) {
@@ -56,7 +57,7 @@ public abstract class MessageGenerator implements Message {
     ByteBuffer header;
     ArrayList<ByteBuffer> data;
 
-    public ArrayList<ByteBuffer> export() {
+    public List<ByteBuffer> export() {
         ArrayList<ByteBuffer> out = new ArrayList<ByteBuffer>();
         out.add(header.asReadOnlyBuffer());
         for (ByteBuffer bb : data) out.add(bb.asReadOnlyBuffer().rewind());

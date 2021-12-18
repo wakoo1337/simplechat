@@ -56,13 +56,17 @@ public abstract class MessageProcessor implements Message {
 
     protected static final MsgDisplay disp = new ErrorDisplay("Ошибка при разборе сообщения");
 
-    protected String getString() throws BufferUnderflowException, ProtocolException {
+    protected String getString() throws ProtocolException {
         final int len = remain.getInt();
         if (len <= 0) throw new ProtocolException("Строка не может иметь отрицательную длину");
         ByteBuffer bb = ByteBuffer.allocate(len);
-        for (int i = 0; i < len; i++) bb.put(remain.get());
-        bb.flip();
-        return StandardCharsets.UTF_8.decode(bb).toString();
+        try {
+            for (int i = 0; i < len; i++) bb.put(remain.get());
+            bb.flip();
+            return StandardCharsets.UTF_8.decode(bb).toString();
+        } catch (BufferUnderflowException buexcp) {
+            throw new ProtocolException("Строка кончилась слишком рано", buexcp);
+        }
     }
 
     public List<ByteBuffer> export() {
@@ -84,7 +88,11 @@ public abstract class MessageProcessor implements Message {
         return " [" + (sign_ok ? "\uD83D\uDD12" : "\uD83D\uDD13") + "] ";
     }
 
-    protected int getInt() {
-        return remain.getInt();
+    protected int getInt() throws ProtocolException {
+        try {
+            return remain.getInt();
+        } catch (BufferUnderflowException buexcp) {
+            throw new ProtocolException("Невозможно извлечь int", buexcp);
+        }
     }
 }
