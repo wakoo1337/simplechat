@@ -5,7 +5,6 @@ import com.wakoo.simplechat.displays.ErrorDisplay;
 import com.wakoo.simplechat.displays.MsgDisplay;
 import com.wakoo.simplechat.gui.ChatBox;
 import com.wakoo.simplechat.gui.ConnectDisconnectItems;
-import com.wakoo.simplechat.gui.UsersBox;
 import com.wakoo.simplechat.messages.Message;
 import com.wakoo.simplechat.messages.generators.EnterGenerator;
 import com.wakoo.simplechat.messages.generators.InfoGenerator;
@@ -58,8 +57,7 @@ public final class NetworkingProcessor implements Runnable {
                                 new_key = sock.register(conn_sel, SelectionKey.OP_READ);
                                 ClientConnection conn = new ClientConnection(new_key);
                                 new_key.attach(conn);
-                                if (UsersBox.SINGLETON.getUsersList().size() > 0)
-                                    conn.queueMsgSend(new UsersListTransferGenerator(true));
+                                conn.queueMsgSend(new UsersListTransferGenerator(true));
                             }
                         } else {
                             ClientConnection connection = (ClientConnection) key.attachment();
