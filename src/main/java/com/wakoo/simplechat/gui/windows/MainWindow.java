@@ -10,6 +10,7 @@ import com.wakoo.simplechat.gui.displays.InfoDisplay;
 import com.wakoo.simplechat.gui.displays.MsgDisplay;
 import com.wakoo.simplechat.messages.TextMessage;
 import com.wakoo.simplechat.messages.generators.InfoGenerator;
+import com.wakoo.simplechat.messages.generators.LeaveGenerator;
 import com.wakoo.simplechat.messages.generators.TextGenerator;
 import com.wakoo.simplechat.networking.NetworkingProcessor;
 import javafx.event.ActionEvent;
@@ -61,6 +62,7 @@ public final class MainWindow implements Initializable {
     @FXML
     private void menuActionDisconnect(ActionEvent event) {
         try {
+            NetworkingProcessor.ServerConnection.SINGLETON.cl_conn.queueMsgSend(new LeaveGenerator());
             NetworkingProcessor.ServerConnection.SINGLETON.disconnectServer();
         } catch (IOException ioexcp) {
             connerr_disp.displayMessage(ioexcp, "Невозможно отключиться от сервера");

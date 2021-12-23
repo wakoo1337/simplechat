@@ -70,6 +70,9 @@ public final class NetworkingProcessor implements Runnable {
                                     }
                                     if (key.isWritable()) {
                                         connection.writeOutData();
+                                        if (connection.getCloseMe() && connection.isSendQueueEmpty()) {
+                                            connection.close();
+                                        }
                                     }
                                     areSendQueuesEmpty &= connection.isSendQueueEmpty();
                                 } else {
@@ -141,13 +144,10 @@ public final class NetworkingProcessor implements Runnable {
 
         public void disconnectServer() throws IOException {
             if (connected) {
-                synchronized (this) {
-                    srv_key.cancel();
-                    srv_conn.close();
-                    conn_sel.wakeup();
-                }
+                cl_conn.markToClose();
                 srv_conn = null;
                 srv_key = null;
+                cl_conn = null;
                 setConnected(false);
                 ChatBox.SINGLETON.addMessage(new InfoGenerator("Отключено от сервера"));
             }

@@ -25,6 +25,7 @@ public final class ClientConnection implements AutoCloseable {
     private final SelectionKey key;
     private final ArrayList<ByteBuffer> sendqueue = new ArrayList<>();
     private final static int hdr_len = 8;
+    private boolean close_me = false;
 
     public ClientConnection(SelectionKey sk) {
         channel = (SocketChannel) sk.channel();
@@ -136,5 +137,14 @@ public final class ClientConnection implements AutoCloseable {
             err_disp.displayMessage(ioexcp, "Невозможно получить удалённый адрес");
             return null;
         }
+    }
+
+    public boolean getCloseMe() {
+        return close_me;
+    }
+
+    public void markToClose() {
+        close_me = true;
+        key.selector().wakeup();
     }
 }
