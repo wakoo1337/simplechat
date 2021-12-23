@@ -107,7 +107,7 @@ public final class NetworkingProcessor implements Runnable {
     private final MsgDisplay err_disp = new ErrorDisplay("Ошибка сети", "Ошибка в потоке обработки сетевых соединений");
 
     private void disconnectClientOrServer(SelectionKey key) throws IOException {
-        if (ServerConnection.SINGLETON.srv_key.equals(key)) {
+        if (ServerConnection.SINGLETON.isConnected() && ServerConnection.SINGLETON.srv_key.equals(key)) {
             ServerConnection.SINGLETON.setConnected(false);
             ChatBox.SINGLETON.addMessage(new InfoGenerator("Отключено от сервера"));
         }
