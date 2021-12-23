@@ -5,7 +5,7 @@ import com.wakoo.simplechat.messages.Message;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-public class InfoGenerator implements Message {
+public final class InfoGenerator implements Message {
     public InfoGenerator(String msg) {
         this.msg = msg;
     }

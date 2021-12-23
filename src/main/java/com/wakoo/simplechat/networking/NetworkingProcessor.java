@@ -1,10 +1,10 @@
 package com.wakoo.simplechat.networking;
 
 import com.wakoo.simplechat.ProfileCatalog;
-import com.wakoo.simplechat.displays.ErrorDisplay;
-import com.wakoo.simplechat.displays.MsgDisplay;
 import com.wakoo.simplechat.gui.ChatBox;
 import com.wakoo.simplechat.gui.ConnectDisconnectItems;
+import com.wakoo.simplechat.gui.displays.ErrorDisplay;
+import com.wakoo.simplechat.gui.displays.MsgDisplay;
 import com.wakoo.simplechat.messages.Message;
 import com.wakoo.simplechat.messages.generators.EnterGenerator;
 import com.wakoo.simplechat.messages.generators.InfoGenerator;
@@ -12,6 +12,7 @@ import com.wakoo.simplechat.messages.generators.LeaveGenerator;
 import com.wakoo.simplechat.messages.generators.UsersListTransferGenerator;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -72,29 +73,22 @@ public final class NetworkingProcessor implements Runnable {
                                     }
                                     areSendQueuesEmpty &= connection.isSendQueueEmpty();
                                 } else {
-                                    key.cancel();
-                                    key.channel().close();
-                                    if (channel == ServerConnection.SINGLETON.srv_conn)
-                                        ServerConnection.SINGLETON.connected = false;
+                                    disconnectClientOrServer(key);
                                 }
                             } catch (IOException ioexcp) {
-                                if (ServerConnection.SINGLETON.srv_key.equals(key)) {
-                                    ServerConnection.SINGLETON.setConnected(false);
-                                    ChatBox.SINGLETON.addMessage(new InfoGenerator("Отключено от сервера"));
-                                }
-                                key.cancel();
-                                channel.close();
+                                disconnectClientOrServer(key);
                                 err_disp.displayMessage(ioexcp, "Ошибка ввода-вывода на сокете");
                             } catch (ProtocolException protoexcp) {
-                                if (ServerConnection.SINGLETON.srv_key.equals(key)) {
-                                    ServerConnection.SINGLETON.setConnected(false);
-                                    ChatBox.SINGLETON.addMessage(new InfoGenerator("Отключено от сервера"));
-                                }
-                                key.cancel();
-                                channel.close();
+                                disconnectClientOrServer(key);
                                 err_disp.displayMessage(protoexcp, "Неверно сформированное сообщение на сокете");
                             } catch (ReflectiveOperationException reflopexcp) {
-                                err_disp.displayMessage(reflopexcp, "Невозможно создать экземпляр класса-обработчика сетевого сообщения");
+                                if (reflopexcp instanceof InvocationTargetException) {
+                                    Throwable previous = reflopexcp.getCause();
+                                    err_disp.displayMessage(previous, "Ошибка при обработке сообщения");
+                                    if ((previous instanceof ProtocolException))
+                                        disconnectClientOrServer(key);
+                                } else
+                                    err_disp.displayMessage(reflopexcp, "Невозможно создать экземпляр класса-обработчика сетевого сообщения");
                             }
                         }
                     }
@@ -106,11 +100,20 @@ public final class NetworkingProcessor implements Runnable {
             }
             // Соединения не закрываем, операционка сделает это за нас
         } catch (IOException ioexcp) {
-            err_disp.displayMessage(ioexcp, "Проблемы с ожиданием соединения");
+            err_disp.displayMessage(ioexcp, "Проблемы с ожиданием или закрытием соединения");
         }
     }
 
     private final MsgDisplay err_disp = new ErrorDisplay("Ошибка сети", "Ошибка в потоке обработки сетевых соединений");
+
+    private void disconnectClientOrServer(SelectionKey key) throws IOException {
+        if (ServerConnection.SINGLETON.srv_key.equals(key)) {
+            ServerConnection.SINGLETON.setConnected(false);
+            ChatBox.SINGLETON.addMessage(new InfoGenerator("Отключено от сервера"));
+        }
+        key.cancel();
+        ((SocketChannel) key.channel()).close();
+    }
 
     public static final class ServerConnection {
         public static final ServerConnection SINGLETON = new ServerConnection();

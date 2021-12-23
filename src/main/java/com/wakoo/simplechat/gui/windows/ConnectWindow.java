@@ -1,8 +1,8 @@
 package com.wakoo.simplechat.gui.windows;
 
 import com.wakoo.simplechat.ProfileCatalog;
-import com.wakoo.simplechat.displays.ErrorDisplay;
-import com.wakoo.simplechat.displays.MsgDisplay;
+import com.wakoo.simplechat.gui.displays.ErrorDisplay;
+import com.wakoo.simplechat.gui.displays.MsgDisplay;
 import com.wakoo.simplechat.networking.NetworkingProcessor;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

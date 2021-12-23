@@ -1,7 +1,7 @@
 package com.wakoo.simplechat.networking;
 
-import com.wakoo.simplechat.displays.ErrorDisplay;
-import com.wakoo.simplechat.displays.MsgDisplay;
+import com.wakoo.simplechat.gui.displays.ErrorDisplay;
+import com.wakoo.simplechat.gui.displays.MsgDisplay;
 import com.wakoo.simplechat.messages.Message;
 import com.wakoo.simplechat.messages.MessageTypes;
 import com.wakoo.simplechat.messages.processors.MessageProcessor;
@@ -65,11 +65,10 @@ public final class ClientConnection implements AutoCloseable {
                 in_msg.get(okey);
                 final int type = in_msg.getInt();
                 in_msg.reset();
-                Class<MessageProcessor> msgproc = types.get(type);
+                Constructor<MessageProcessor> msgproc = types.get(type);
                 if (msgproc != null) {
-                    Constructor<MessageProcessor> c = msgproc.getConstructor(InetSocketAddress.class, byte[].class, byte[].class, ByteBuffer.class);
-                    c.newInstance(channel.getRemoteAddress(), okey, sign, in_msg);
-                }
+                    msgproc.newInstance(channel.getRemoteAddress(), okey, sign, in_msg);
+                } else throw new ProtocolException("Получено сообщение с неверным типом");
             } catch (BufferUnderflowException buexcp) {
                 throw new ProtocolException("В сообщении отсутствуют цифровая подпись, открытый ключ, и/или длина", buexcp);
             } finally {
@@ -109,16 +108,16 @@ public final class ClientConnection implements AutoCloseable {
         queueDataWrite(message.export());
     }
 
-    private static final HashMap<Integer, Class<MessageProcessor>> types;
+    private static final HashMap<Integer, Constructor<MessageProcessor>> types;
 
     static {
         types = new HashMap<>();
         try {
-            types.put(MessageTypes.MessageNoop, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.NoopProcessor"));
-            types.put(MessageTypes.MessageEnter, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.EnterProcessor"));
-            types.put(MessageTypes.MessageLeave, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.LeaveProcessor"));
-            types.put(MessageTypes.MessageText, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.TextProcessor"));
-            types.put(MessageTypes.MessageUsersListTransfer, (Class<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.UsersListTransferProcessor"));
+            types.put(MessageTypes.MessageNoop, (Constructor<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.NoopProcessor").getConstructor(InetSocketAddress.class, byte[].class, byte[].class, ByteBuffer.class));
+            types.put(MessageTypes.MessageEnter, (Constructor<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.EnterProcessor").getConstructor(InetSocketAddress.class, byte[].class, byte[].class, ByteBuffer.class));
+            types.put(MessageTypes.MessageLeave, (Constructor<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.LeaveProcessor").getConstructor(InetSocketAddress.class, byte[].class, byte[].class, ByteBuffer.class));
+            types.put(MessageTypes.MessageText, (Constructor<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.TextProcessor").getConstructor(InetSocketAddress.class, byte[].class, byte[].class, ByteBuffer.class));
+            types.put(MessageTypes.MessageUsersListTransfer, (Constructor<MessageProcessor>) Class.forName("com.wakoo.simplechat.messages.processors.UsersListTransferProcessor").getConstructor(InetSocketAddress.class, byte[].class, byte[].class, ByteBuffer.class));
         } catch (ReflectiveOperationException refexcp) {
             MsgDisplay err_disp = new ErrorDisplay("Ошибка рефлексии");
             err_disp.displayMessage(refexcp, "Невозможно получить доступ к классам-обработчикам сообщений");

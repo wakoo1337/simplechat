@@ -1,8 +1,8 @@
 package com.wakoo.simplechat.messages.generators;
 
 import com.wakoo.simplechat.ProfileCatalog;
-import com.wakoo.simplechat.displays.ErrorDisplay;
-import com.wakoo.simplechat.displays.MsgDisplay;
+import com.wakoo.simplechat.gui.displays.ErrorDisplay;
+import com.wakoo.simplechat.gui.displays.MsgDisplay;
 import com.wakoo.simplechat.messages.Message;
 import com.wakoo.simplechat.messages.MessageTypes;
 

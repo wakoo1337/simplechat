@@ -9,8 +9,8 @@ module com.wakoo.simplechat {
     exports com.wakoo.simplechat.messages.generators;
     exports com.wakoo.simplechat.messages.processors;
     opens com.wakoo.simplechat.messages.processors to javafx.fxml;
-    exports com.wakoo.simplechat.displays;
-    opens com.wakoo.simplechat.displays to javafx.fxml;
+    exports com.wakoo.simplechat.gui.displays;
+    opens com.wakoo.simplechat.gui.displays to javafx.fxml;
     exports com.wakoo.simplechat.networking;
     opens com.wakoo.simplechat.networking to javafx.fxml;
     exports com.wakoo.simplechat.gui;

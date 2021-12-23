@@ -1,4 +1,4 @@
-package com.wakoo.simplechat.displays;
+package com.wakoo.simplechat.gui.displays;
 
 import javafx.application.Platform;
 import javafx.scene.control.Alert;

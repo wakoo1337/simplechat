@@ -1,7 +1,7 @@
 package com.wakoo.simplechat;
 
-import com.wakoo.simplechat.displays.ErrorDisplay;
-import com.wakoo.simplechat.displays.MsgDisplay;
+import com.wakoo.simplechat.gui.displays.ErrorDisplay;
+import com.wakoo.simplechat.gui.displays.MsgDisplay;
 
 import java.io.*;
 import java.nio.file.Files;

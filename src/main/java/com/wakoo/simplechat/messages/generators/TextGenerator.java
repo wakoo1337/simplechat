@@ -3,7 +3,7 @@ package com.wakoo.simplechat.messages.generators;
 import com.wakoo.simplechat.messages.MessageTypes;
 import com.wakoo.simplechat.messages.msgs.TextMsg;
 
-public class TextGenerator extends MessageGenerator implements TextMsg {
+public final class TextGenerator extends MessageGenerator implements TextMsg {
     final String text;
 
     public TextGenerator(String text) {

@@ -7,7 +7,7 @@ import com.wakoo.simplechat.messages.MessageTypes;
 
 import java.util.List;
 
-public class UsersListTransferGenerator extends MessageGenerator implements Message {
+public final class UsersListTransferGenerator extends MessageGenerator implements Message {
     public UsersListTransferGenerator(boolean self) {
         super(MessageTypes.MessageUsersListTransfer);
         List<String> users;

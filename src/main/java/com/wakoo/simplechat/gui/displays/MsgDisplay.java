@@ -1,4 +1,4 @@
-package com.wakoo.simplechat.displays;
+package com.wakoo.simplechat.gui.displays;
 
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
@@ -24,7 +24,7 @@ public class MsgDisplay {
 
     private final String defaultHeader;
 
-    public void displayMessage(Exception excp, String header) {
+    public void displayMessage(Throwable excp, String header) {
         Platform.runLater(() -> {
             this.alert.setHeaderText(header);
             this.alert.setContentText(excp.getMessage());
