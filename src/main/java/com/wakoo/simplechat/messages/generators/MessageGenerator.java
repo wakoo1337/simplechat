@@ -34,7 +34,7 @@ public abstract class MessageGenerator implements Message {
                 signer.initSign(ProfileCatalog.SINGLETON.getClosedKey());
                 try {
                     for (ByteBuffer element : data) signer.update(element.asReadOnlyBuffer());
-                    signature = ByteBuffer.wrap(signer.sign()); // TODO сделать ключи и подписи произвольной длины
+                    signature = ByteBuffer.wrap(signer.sign());
                     data.add(0, signature);
                     insertInt(signature.limit(), true);
                 } catch (SignatureException sigexcp) {
