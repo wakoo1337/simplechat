@@ -20,7 +20,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public final class NetworkingProcessor implements Runnable {
     public static final NetworkingProcessor SINGLETON = new NetworkingProcessor();
@@ -181,24 +181,20 @@ public final class NetworkingProcessor implements Runnable {
         }
     }
 
-    private void iterateConnections(Consumer<ClientConnection> consumer, boolean server) {
+    private void sendConditional(Message msg, Predicate<ClientConnection> condition, boolean server) {
         for (SelectionKey key : conn_sel.keys()) {
             ClientConnection ck = (ClientConnection) key.attachment();
-            if ((ck != null) && (server || (!key.equals(ServerConnection.SINGLETON.srv_key)))) {
-                consumer.accept(ck);
+            if ((ck != null) && (server || (!key.equals(ServerConnection.SINGLETON.srv_key))) && condition.test(ck)) {
+                ck.queueMsgSend(msg);
             }
         }
     }
 
     public void sendTo(Message msg, boolean server) {
-        iterateConnections((ClientConnection conn) -> {
-            conn.queueMsgSend(msg);
-        }, server);
+        sendConditional(msg, (ClientConnection conn) -> true, server);
     }
 
     public void relayMessage(Message msg, InetSocketAddress from) {
-        iterateConnections((ClientConnection conn) -> {
-            if (!from.equals(conn.getRemoteAddress())) conn.queueMsgSend(msg);
-        }, true);
+        sendConditional(msg, (ClientConnection conn) -> (!from.equals(conn.getRemoteAddress())), true);
     }
 }
