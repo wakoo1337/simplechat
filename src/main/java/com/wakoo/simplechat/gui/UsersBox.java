@@ -26,6 +26,8 @@ public final class UsersBox {
     }
 
     public void clear() {
-        Platform.runLater(() -> lv.getItems().removeAll());
+        Platform.runLater(() -> {
+            while (!lv.getItems().isEmpty()) lv.getItems().remove(0);
+        });
     }
 }
