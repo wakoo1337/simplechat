@@ -3,6 +3,7 @@ package com.wakoo.simplechat.networking;
 import com.wakoo.simplechat.ProfileCatalog;
 import com.wakoo.simplechat.gui.ChatBox;
 import com.wakoo.simplechat.gui.ConnectDisconnectItems;
+import com.wakoo.simplechat.gui.UsersBox;
 import com.wakoo.simplechat.gui.displays.ErrorDisplay;
 import com.wakoo.simplechat.gui.displays.MsgDisplay;
 import com.wakoo.simplechat.messages.Message;
@@ -150,6 +151,7 @@ public final class NetworkingProcessor implements Runnable {
                 cl_conn = null;
                 setConnected(false);
                 ChatBox.SINGLETON.addMessage(new InfoGenerator("Отключено от сервера"));
+                UsersBox.SINGLETON.clear();
             }
         }
 

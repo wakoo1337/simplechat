@@ -17,11 +17,15 @@ public final class UsersBox {
         return lv.getItems();
     }
 
-    public void addUser(String user) {
+    public void addUser(final String user) {
         Platform.runLater(() -> lv.getItems().add(user));
     }
 
-    public void delUser(String user) {
+    public void delUser(final String user) {
         Platform.runLater(() -> lv.getItems().remove(user));
+    }
+
+    public void clear() {
+        Platform.runLater(() -> lv.getItems().removeAll());
     }
 }
